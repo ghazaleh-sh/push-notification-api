@@ -279,7 +279,7 @@ public class HttpV1ServiceImpl extends FcmService {
                         .addAllTokens(batch)
                         .build();
                 BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-
+ Thread.sleep(500);// Example: pause between batches
                 System.out.println(response.getSuccessCount() + " messages were sent successfully");
                 // [END send_multicast]
             }

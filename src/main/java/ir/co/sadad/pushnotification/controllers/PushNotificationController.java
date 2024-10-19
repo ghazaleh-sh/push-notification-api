@@ -2,7 +2,7 @@ package ir.co.sadad.pushnotification.controllers;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import ir.bmi.identity.security.interceptor.Scope;
+//import ir.bmi.identity.security.interceptor.Scope;
 import ir.co.sadad.pushnotification.dtos.ActivateDeactivateReqDto;
 import ir.co.sadad.pushnotification.dtos.ActivateDeactivateResDto;
 import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
@@ -35,7 +35,7 @@ public class PushNotificationController {
     private final PushNotificationService pushNotificationService;
     private final HttpV1ServiceImpl httpV1Service;
 
-    @Scope(values = "hambam-push-notification-secure")
+//    @Scope(values = "hambam-push-notification-secure")
     @Operation(summary = "سرویس ثبت مشخصات کاربر بام پی", description = "سرویسی که مشخصات کاربر را در دیتابیس ذخیره میکند")
     @PostMapping(value = "/push-bampay")
     public ResponseEntity<HttpStatus> addOrUpdateUserBampay(
@@ -54,7 +54,7 @@ public class PushNotificationController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @Scope(values = "customer-super")
+//    @Scope(values = "customer-super")
     @Operation(summary = "سرویس ثبت مشخصات کاربر همراه بام", description = "سرویسی که مشخصات کاربر را در دیتابیس ذخیره میکند")
     @PostMapping(value = "/push-hamrahbam")
     public ResponseEntity<FirebaseUserResDto> addOrUpdateUserHambam(
@@ -70,9 +70,9 @@ public class PushNotificationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @Scope(values = "customer-super")
+//    @Scope(values = "customer-super")
     @Operation(summary = "سرویس فعالسازی/غیرفعالسازی ارسال پوش به کاربر", description = "این سرویس ارسال پوش به دیوایس کاربر را فعال/غیرفعال میکند.")
-    @PutMapping(value = "/de-activation")
+    @PutMapping(value = "/setting")
     public ResponseEntity<ActivateDeactivateResDto> activePushForUser(
             @Valid @RequestBody ActivateDeactivateReqDto reqDto,
             @RequestHeader(SSN) String ssn) {
@@ -82,20 +82,20 @@ public class PushNotificationController {
     }
 
 //    @Scope(values = "customer-super")
-//    @Operation(summary = "سرویس ارسال پوش به کاربر", description = "این سرویس ")
-//    @PostMapping(value = "/send")
-//    public ResponseEntity<HttpStatus> sendMessage(
-//            @RequestParam String title,
-//            @RequestParam String description,
-//            @RequestHeader(SSN) String noti_id) {
-//        try {
-//            this.httpV1Service.pushNotificationWithJsonData(
-//                    title,
-//                    description,
-//                    noti_id);
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return new ResponseEntity<>(HttpStatus.OK);
-//    }
+    @Operation(summary = "سرویس ارسال پوش به کاربر", description = "این سرویس ")
+    @PostMapping(value = "/send")
+    public ResponseEntity<HttpStatus> sendMessage(
+            @RequestParam String title,
+            @RequestParam String description,
+            @RequestParam String noti_id) {
+        try {
+            this.httpV1Service.pushNotificationWithJsonData(
+                    title,
+                    description,
+                    noti_id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 }

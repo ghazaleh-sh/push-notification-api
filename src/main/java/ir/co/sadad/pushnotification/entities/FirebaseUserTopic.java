@@ -31,5 +31,5 @@ public class FirebaseUserTopic extends AbstractEntity {
     @ManyToOne//(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "TOPIC_ID", referencedColumnName = "ID", nullable = false, foreignKey = @ForeignKey(name = "FKFIREBASE_USER_TOPIC_TO_TOPIC"))
     @NotNull
-    private Topic topic;
+    private FirebaseTopic topic;
 }

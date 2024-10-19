@@ -1,32 +1,32 @@
-version: '3.3'
-services:
-  push-notification-api:
-    image: repo.sadad.co.ir/repository/baam-docker-registry/push-notification-api:BUILD_NUMBER
-    container_name: push-notification-api
-    hostname: push-notification-api-srv
-    networks:
-      neo-baam:
-        aliases:
-          - push-notification-api-srv
-    ports:
-      - 9080:8524
-      - 1516:1516
-#      - 9078:8000
-    tty: true
-    extra_hosts:
-      - "cache:192.168.53.58"
-      - "cache1:192.168.53.58"
-      - "config-srv:192.168.53.73"
-    volumes:
-      - /var/log/push-notification-api:/var/log/push-notification-api
-      - /opt/configs/push-notification-api:/opt/configs/push-notification-api
-    environment:
-      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
-      - JVM_OPTS=-Dfile.encoding=UTF8
-    working_dir: /
-    build: .
-    command: [ "/usr/bin/java", "-jar", "/push-notification-api-0.0.1-SNAPSHOT.jar" ]
-#    restart: always
-networks:
-  neo-baam:
-    driver: bridge
+#version: '3.3'
+#services:
+#  push-notification-api:
+#    image: repo.sadad.co.ir/repository/baam-docker-registry/push-notification-api:BUILD_NUMBER
+#    container_name: push-notification-api
+#    hostname: push-notification-api-srv
+#    networks:
+#      neo-baam:
+#        aliases:
+#          - push-notification-api-srv
+#    ports:
+#      - 9080:8524
+#      - 1516:1516
+##      - 9078:8000
+#    tty: true
+#    extra_hosts:
+#      - "cache:192.168.53.58"
+#      - "cache1:192.168.53.58"
+#      - "config-srv:192.168.53.73"
+#    volumes:
+#      - /var/log/push-notification-api:/var/log/push-notification-api
+#      - /opt/configs/push-notification-api:/opt/configs/push-notification-api
+#    environment:
+#      - SPRING_PROFILES_ACTIVE=${SPRING_PROFILES_ACTIVE}
+#      - JVM_OPTS=-Dfile.encoding=UTF8
+#    working_dir: /
+#    build: .
+#    command: [ "/usr/bin/java", "-jar", "/push-notification-api-0.0.1-SNAPSHOT.jar" ]
+##    restart: always
+#networks:
+#  neo-baam:
+#    driver: bridge

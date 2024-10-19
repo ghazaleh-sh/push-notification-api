@@ -26,10 +26,10 @@ public class FirebaseUser extends AbstractEntity {
     @Column(name = "FCM_TOKEN", length = 200, nullable = false)
     private String fcmToken;
 
-    @Column(name = "NATIONAL_CODE", length = 10, nullable = false)
+    @Column(name = "NATIONAL_CODE", columnDefinition = "char(10)", length = 10, nullable = false)
     private String nationalCode;
 
-    @Column(name = "MOBILE_NUMBER", length = 14)
+    @Column(name = "MOBILE_NUMBER", columnDefinition = "char(12)", length = 12)
     private String mobileNumber;
 
     @Column(name = "APPLICATION_NAME", length = 15, nullable = false)

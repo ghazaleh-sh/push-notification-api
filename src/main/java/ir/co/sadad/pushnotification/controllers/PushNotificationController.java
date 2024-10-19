@@ -3,10 +3,7 @@ package ir.co.sadad.pushnotification.controllers;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 //import ir.bmi.identity.security.interceptor.Scope;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateReqDto;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateResDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserResDto;
+import ir.co.sadad.pushnotification.dtos.*;
 import ir.co.sadad.pushnotification.enums.AppUser;
 import ir.co.sadad.pushnotification.services.HttpV1ServiceImpl;
 import ir.co.sadad.pushnotification.services.PushNotificationService;
@@ -96,6 +93,14 @@ public class PushNotificationController {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @Operation(summary = "سرویس ارسال بچ پوش به کاربران", description = "این سرویس ")
+    @PostMapping(value = "/batch-send")
+    public ResponseEntity<HttpStatus> sendMultiMessage(
+            @RequestBody MultiMessageReqDto reqDto) {
+            this.httpV1Service.sendMulticast(reqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

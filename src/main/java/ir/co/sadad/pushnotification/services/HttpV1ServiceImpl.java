@@ -3,6 +3,7 @@ package ir.co.sadad.pushnotification.services;
 // [START storage_batch_request]
 
 //import com.google.api.gax.paging.Page;
+
 import com.google.auth.oauth2.GoogleCredentials;
 //import com.google.cloud.storage.Blob;
 //import com.google.cloud.storage.Storage;
@@ -17,6 +18,7 @@ import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.gson.JsonObject;
 import ir.co.sadad.pushnotification.common.exceptions.PushNotificationException;
+import ir.co.sadad.pushnotification.dtos.MultiMessageReqDto;
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
 import ir.co.sadad.pushnotification.repositories.FirebaseUserRepository;
 import lombok.extern.slf4j.Slf4j;
@@ -34,6 +36,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -231,34 +234,62 @@ public class HttpV1ServiceImpl extends FcmService {
         log.info("===( End PushNotiHttpV1Service response log )===");
     }
 
-    public void sendMulticast() throws FirebaseMessagingException {
-        // [START send_multicast]
-        // MulticastMessage class as part of the Firebase Admin SDK, simplifies managing the batch requests and error handling.
-        // Create a list containing up to 500 registration tokens.
-        // These registration tokens come from the client FCM SDKs.
-        List<String> registrationTokens = Arrays.asList(
-                "YOUR_REGISTRATION_TOKEN_1",
-                // ...
-                "YOUR_REGISTRATION_TOKEN_n"
-        );
+    // MulticastMessage class as part of the Firebase Admin SDK
+    // Create a list containing up to 500 registration tokens.
+    public void sendMulticast(MultiMessageReqDto msgReq) {
+        String currentDate = Utilities.getCurrentUTCDate().concat("T20:30:00.000Z");
+        try {
+            if (msgReq.getActivationDate().compareTo(currentDate) > 0) {
+                //TODO: send this notification toward the job
+            }
+            List<List<String>> batches = null;
+            List<String> registrationTokens = null;
 
-        List<List<String>> batches = Lists.partition(registrationTokens, 500); // This splits your token list into batches of 500
+            if (msgReq.getUsers().isEmpty()) {
+                //TODO: get all tokens from DB
+                // who activated campaign push notification and matched with the given platform
+            } else {
 
-        for (List<String> batch : batches) {
-            MulticastMessage message = MulticastMessage.builder()
-//                .putData("score", "850")
-//                .putData("time", "2:45")
-                    .putData("title", "my title")
-                    .putData("body", "my body")
-                    .addAllTokens(batch)
-                    .build();
-            BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-            // See the BatchResponse reference documentation
-            // for the contents of response.
-            System.out.println(response.getSuccessCount() + " messages were sent successfully");
-            // [END send_multicast]
+                //TODO: I need a service to get FCM tokens of list of given user
+                // who activated campaign push notification and matched with the given platform
+                registrationTokens = Arrays.asList(
+                        "YOUR_REGISTRATION_TOKEN_1",
+                        // ...
+                        "YOUR_REGISTRATION_TOKEN_n"
+                );
+            }
+
+            callMulticastSDKService(msgReq, registrationTokens);
+
+        } catch (Exception e) {
+            throw new RuntimeException();
         }
     }
+
+    @Async //to parallelize the sending process.
+    protected void callMulticastSDKService(MultiMessageReqDto msgReq, List<String> registrationTokens) {
+        try {
+            List<List<String>> batches = Lists.partition(registrationTokens, 500); // This splits your token list into batches of 500
+            for (List<String> batch : batches) {
+                MulticastMessage message = MulticastMessage.builder()
+                        //                .putData("score", "850")
+                        //                .putData("time", "2:45")
+                        .putData("title", msgReq.getTitle())
+                        .putData("body", msgReq.getDescription() + " " + msgReq.getHyperlink())
+                        .addAllTokens(batch)
+                        .build();
+                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+
+                System.out.println(response.getSuccessCount() + " messages were sent successfully");
+                // [END send_multicast]
+            }
+        } catch (FirebaseMessagingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+
+
 //
 //    public  void batchSetObjectMetadata(String bucketName, String directoryPrefix) {
 //        // The ID of your GCS bucket
@@ -316,5 +347,4 @@ public class HttpV1ServiceImpl extends FcmService {
 //        }
 //    }
 
-}
 

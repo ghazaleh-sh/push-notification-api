@@ -1,6 +1,0 @@
-spring:
-  application:
-    name: push-notification-api
-  cloud:
-    config:
-      uri: http://config-srv:8888

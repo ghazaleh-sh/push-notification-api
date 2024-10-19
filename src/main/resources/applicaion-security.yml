@@ -1,0 +1,12 @@
+###############################__PUSH_NOTIFICATION_security__###############################
+#
+#
+db:
+#  url: jdbc:db2://192.168.97.134:50000/BMI_API
+  url: jdbc:h2:file:/Users/ghazalehshahrokh/Desktop/ghazaleh files/projects/push-notification/src/main/resources/data/demo;AUTO_SERVER=true
+  username: sa
+  password: admin
+#  default_schema: db2inst1
+
+log:
+  level: info

@@ -1,0 +1,114 @@
+###############################__PUSH_NOTIFICATION__###############################
+#
+#
+###############################__Context
+server:
+  port: 8524
+  servlet:
+    context-path: /api/push-notification
+
+#
+#
+###############################__Metrics_And_Monitoring
+management:
+  health.redis.enabled: false
+  info.git.mode: full
+  endpoint:
+    health.show-details: always
+    metrics.enabled: true
+    prometheus.enabled: true
+  endpoints:
+    enabled-by-default: true
+    jmx.exposure.exclude: '*'
+    web.exposure.include: '*'
+  metrics:
+    enable:
+      jvm: true
+      root: true
+    export.prometheus.enabled: true
+###############################__Database
+spring:
+  profiles:
+    include:
+      security
+  application:
+    name: push-notification-api
+  h2:
+    console:
+      enabled: true
+      path: /h2
+  #  jpa:
+#    database-platform: org.hibernate.dialect.DB2Dialect
+#    show-sql: false
+#    generate-ddl: true
+#    open-in-view: false
+#    hibernate:
+#      naming.physical-strategy:  org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+#      ddl-auto: none
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.DB2Dialect
+#        format_sql: true
+#        default_schema: ${db.default_schema}
+  datasource:
+    username: ${db.username}
+    password: ${db.password}
+    url: ${db.url}
+    driver-class-name: org.h2.Driver
+
+  ###############################__Logging
+
+logging:
+  level:
+    root: ${log.level}
+    hibernate: ${log.level}
+    org.hibernate: ${log.level}
+    org:
+      hibernate:
+        SQL: ${log.level}
+        type.descriptor.sql.BasicBinder: ${log.level}
+      springframework:
+        boot.autoconfigure: ${log.level}
+        web: ${log.level}
+        web.reactive.function.client.ExchangeFunctions: ${log.level}
+      apache.http: ${log.level}
+      zaando.logbook: ${log.level}
+    net.guides: ${log.level}
+    reactor.netty.http.client.HttpClient: ${log.level}
+    io.swagger.models.parameters.AbstractSerializableParameter: ${log.level}
+    tomcat: ${log.level}
+
+springdoc:
+  swagger-ui:
+    path: /api.html
+
+
+  ###############################__Firebaseio HTTP V1
+fcm:
+  service:
+    account: google-services.json
+    project-id: push-test-c0e8f
+  endpoint:
+    base-url: https://fcm.googleapis.com
+    send-url: /v1/projects/${fcm.service.project-id}/messages:send
+    ##To authorize access to FCM, request the scope
+  scope: https://www.googleapis.com/auth/firebase.messaging
+
+
+###############################__SSO
+bmi.oauth2.excluded-urls: /push-notification-api/swagger-ui/**:*,
+  /swagger-ui/**:*,
+  /push-notification-api/api.html:*,
+  /api.html:*,
+  /push-notification-api/v3/**:*,
+  /v3/**:*,
+  /h2/**:*,
+  /swagger-ui.html:*,
+  /webjars/**:*,
+  /v2/**:*,
+  /swagger-resources/**:*,
+  /actuator/**:*,
+  /trace/**:*
+
+
+secretKeyLocation: /opt/configs/push-notification-api

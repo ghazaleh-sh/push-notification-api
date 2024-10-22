@@ -35,8 +35,8 @@ public class PushNotificationServiceImpl implements PushNotificationService {
 
         FirebaseUserResDto response = new FirebaseUserResDto();
 
-        Optional<FirebaseUser> firebaseUser = firebaseUserRepository.findByNationalCodeAndUserPlatformAndApplicationName(
-                firebaseUserReqDto.getNationalCode(), firebaseUserReqDto.getUserPlatform(), firebaseUserReqDto.getApplicationName());
+        Optional<FirebaseUser> firebaseUser = firebaseUserRepository.findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndModelId(
+                firebaseUserReqDto.getNationalCode(), firebaseUserReqDto.getUserPlatform(), firebaseUserReqDto.getDeviceUniqueId(), firebaseUserReqDto.getModelId());
         if (firebaseUser.isPresent()) {
             FirebaseUser savedUser = firebaseUser.get();
             savedUser.setFcmToken(firebaseUserReqDto.getFcmToken());

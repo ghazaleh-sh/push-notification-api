@@ -78,7 +78,7 @@ public class PushNotificationController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-//    @Scope(values = "customer-super")
+    //    @Scope(values = "customer-super")
     @Operation(summary = "سرویس ارسال پوش به کاربر", description = "این سرویس ")
     @PostMapping(value = "/send")
     public ResponseEntity<HttpStatus> sendMessage(
@@ -97,10 +97,19 @@ public class PushNotificationController {
     }
 
     @Operation(summary = "سرویس ارسال بچ پوش به کاربران", description = "این سرویس ")
-    @PostMapping(value = "/batch-send")
-    public ResponseEntity<HttpStatus> sendMultiMessage(
+    @PostMapping(value = "/campaign-send")
+    public ResponseEntity<HttpStatus> sendMulticastMessage(
             @RequestBody MultiMessageReqDto reqDto) {
-            this.httpV1Service.sendMulticast(reqDto);
+        this.httpV1Service.sendMulticast(reqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @Operation(summary = "سرویس ارسال پوش به یک کاربر توسط سرویس های third-party اعلانات", description = "این سرویس ")
+    @PostMapping(value = "/single-send")
+    public ResponseEntity<HttpStatus> sendSingleMessage(
+            @RequestBody MultiMessageReqDto reqDto) {
+        this.httpV1Service.sendSingle(reqDto);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

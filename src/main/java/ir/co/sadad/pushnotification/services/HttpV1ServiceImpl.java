@@ -5,26 +5,20 @@ package ir.co.sadad.pushnotification.services;
 //import com.google.api.gax.paging.Page;
 
 import com.google.auth.oauth2.GoogleCredentials;
-//import com.google.cloud.storage.Blob;
-//import com.google.cloud.storage.Storage;
-//import com.google.cloud.storage.StorageBatch;
-//import com.google.cloud.storage.StorageOptions;
-
-
 import com.google.common.collect.Lists;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.gson.JsonObject;
+//import ir.co.sadad.hambaam.persiandatetime.PersianUTC;
 import ir.co.sadad.pushnotification.common.exceptions.PushNotificationException;
 import ir.co.sadad.pushnotification.dtos.MultiMessageReqDto;
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
 import ir.co.sadad.pushnotification.repositories.FirebaseUserRepository;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -35,8 +29,9 @@ import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
-import java.util.concurrent.CompletableFuture;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
 
 /**
@@ -88,7 +83,7 @@ public class HttpV1ServiceImpl extends FcmService {
      */
     private static String getAccessToken() throws IOException {
         GoogleCredentials googleCredentials = GoogleCredentials
-                .fromStream(new FileInputStream("agpush"))
+                .fromStream(new FileInputStream("agpush-test-59b2f69ed30f.json"))
                 .createScoped(Arrays.asList(SCOPES));
         googleCredentials.refreshIfExpired();
 //        return googleCredentials.refreshAccessToken().getTokenValue();
@@ -237,7 +232,7 @@ public class HttpV1ServiceImpl extends FcmService {
     // MulticastMessage class as part of the Firebase Admin SDK
     // Create a list containing up to 500 registration tokens.
     public void sendMulticast(MultiMessageReqDto msgReq) {
-        String currentDate = Utilities.getCurrentUTCDate().concat("T20:30:00.000Z");
+        String currentDate = null;//PersianUTC.currentUTC().getDate().concat("T20:30:00.000Z");
         try {
             if (msgReq.getActivationDate().compareTo(currentDate) > 0) {
                 //TODO: send this notification toward the job
@@ -245,7 +240,7 @@ public class HttpV1ServiceImpl extends FcmService {
             List<List<String>> batches = null;
             List<String> registrationTokens = null;
 
-            if (msgReq.getUsers().isEmpty()) {
+            if (msgReq.getSuccessSsn().isEmpty()) {
                 //TODO: get all tokens from DB
                 // who activated campaign push notification and matched with the given platform
             } else {
@@ -266,6 +261,52 @@ public class HttpV1ServiceImpl extends FcmService {
         }
     }
 
+    @SneakyThrows
+    public void sendSingle(MultiMessageReqDto msgReq) {
+        if (msgReq.getSuccessSsn() == null || msgReq.getSuccessSsn().isEmpty())
+            return;
+
+        String userFCMToken;
+        Optional<FirebaseUser> userToPush = firebaseUserRepository.findTopByNationalCodeAndIsTrustedIsTrue(String.valueOf(msgReq.getSuccessSsn().get(0)));
+        if (userToPush.isPresent()) {
+            userFCMToken = userToPush.get().getFcmToken();
+        } else
+            throw new PushNotificationException("user.with.platform.appName.not.trusted", HttpStatus.NOT_FOUND);
+
+        String currentDate = null;// PersianUTC.currentUTC().getDate().concat("T20:30:00.000Z");
+        if (msgReq.getActivationDate().compareTo(currentDate) > 0) {
+            //TODO: send this notification toward the job
+        }
+
+        HttpURLConnection httpURLConnection = getConnection(path);
+        OutputStreamWriter wr = new OutputStreamWriter(httpURLConnection.getOutputStream(), StandardCharsets.UTF_8);
+
+        JsonObject req = buildMyNotificationMessage(userFCMToken, msgReq.getTitle(), msgReq.getDescription());
+        wr.write(req.toString());
+        wr.flush();
+        wr.close();
+
+        int responseCode = httpURLConnection.getResponseCode();
+
+        if (responseCode == 200) {
+            String response = inputstreamToString(httpURLConnection.getInputStream());
+            log.info("Response Code : " + responseCode);
+            log.info("Response Message : " + httpURLConnection.getResponseMessage());
+            log.info("Sending 'POST' request to URL : " + path);
+            log.info("Post parameters : " + req);
+            log.info("Message sent to Firebase for delivery, response:");
+            log.info(response);
+        } else {
+            log.info("Response Code : " + responseCode);
+            log.info("Response Message : " + httpURLConnection.getResponseMessage());
+            log.info("Unable to send message to Firebase:");
+            String response = inputstreamToString(httpURLConnection.getErrorStream());
+            log.info(response);
+        }
+        log.info("===( End PushNotiHttpV1Service response log )===");
+
+    }
+
     @Async //to parallelize the sending process.
     protected void callMulticastSDKService(MultiMessageReqDto msgReq, List<String> registrationTokens) {
         try {
@@ -279,11 +320,11 @@ public class HttpV1ServiceImpl extends FcmService {
                         .addAllTokens(batch)
                         .build();
                 BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-
+                Thread.sleep(500);// Example: pause between batches
                 System.out.println(response.getSuccessCount() + " messages were sent successfully");
                 // [END send_multicast]
             }
-        } catch (FirebaseMessagingException e) {
+        } catch (FirebaseMessagingException | InterruptedException e) {
             throw new RuntimeException(e);
         }
     }
@@ -346,5 +387,4 @@ public class HttpV1ServiceImpl extends FcmService {
 //            e.printStackTrace();
 //        }
 //    }
-
 

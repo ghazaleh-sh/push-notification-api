@@ -7,7 +7,6 @@ import lombok.Builder;
 import lombok.Data;
 
 import javax.validation.constraints.NotNull;
-import javax.validation.constraints.Pattern;
 
 @Data
 @Builder
@@ -28,9 +27,13 @@ public class FirebaseUserReqDto {
 
     private String serialId;
 
-//    @Pattern(regexp = "^(ANDROID|IOS|WEB)$", message = "{platform.not.valid}")
+    //    @Pattern(regexp = "^(ANDROID|IOS|WEB)$", message = "{platform.not.valid}")
     @NotNull(message = "{platform.must.not.be.null}")
     private UserPlatform userPlatform;
 
     private Boolean isTrusted;
+
+    private String deviceUniqueId;
+
+    private String modelId;
 }

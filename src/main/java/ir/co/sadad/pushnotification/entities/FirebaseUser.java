@@ -15,7 +15,7 @@ import javax.persistence.*;
  * stores firebase token of each user from different applications and platforms
  */
 @Entity
-@Table(name = "FIREBASE_USER", uniqueConstraints = {@UniqueConstraint(columnNames = {"NATIONAL_CODE", "APPLICATION_NAME", "USER_PLATFORM"}, name = "UKFIREBASE_SSN_PLATFORM_APPNAME")})
+@Table(name = "FIREBASE_USER", uniqueConstraints = {@UniqueConstraint(columnNames = {"NATIONAL_CODE", "USER_PLATFORM", "DEVICE_UNIQUE_ID", "MODEL_ID"}, name = "UKFIREBASE_SSN_PLATFORM_MODEL")})
 @Getter
 @Setter
 public class FirebaseUser extends AbstractEntity {
@@ -32,9 +32,9 @@ public class FirebaseUser extends AbstractEntity {
     @Column(name = "MOBILE_NUMBER", columnDefinition = "char(12)", length = 12)
     private String mobileNumber;
 
-    @Column(name = "APPLICATION_NAME", length = 15, nullable = false)
-    @Enumerated(EnumType.STRING)
-    private AppUser applicationName;
+//    @Column(name = "APPLICATION_NAME", length = 15, nullable = false)
+//    @Enumerated(EnumType.STRING)
+//    private AppUser applicationName;
 
     @Column(name = "USER_STATUS", nullable = false, columnDefinition = "varchar(50)", length = 50)
     @Enumerated(EnumType.STRING)
@@ -50,5 +50,14 @@ public class FirebaseUser extends AbstractEntity {
     @Column(name = "IS_TRUSTED", columnDefinition = "SMALLINT DEFAULT 0")
 //    @org.hibernate.annotations.ColumnDefault("false")
     private Boolean isTrusted;
+
+    @Column(name = "DEVICE_UNIQUE_ID", length = 100, nullable = false)
+    private String deviceUniqueId;
+
+    @Column(name = "MODEL_ID", length = 50)
+    private String modelId;
+
+    @Column(name = "CAMPAIGN_PUSH", columnDefinition = "SMALLINT DEFAULT 0")
+    private Boolean campaignPush;
 
 }

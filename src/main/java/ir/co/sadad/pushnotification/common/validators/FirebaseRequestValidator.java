@@ -25,15 +25,16 @@ public class FirebaseRequestValidator implements ConstraintValidator<FirebaseReq
             throw new PushNotificationException("national.code.must.not.be.null", HttpStatus.BAD_REQUEST);
         }
 
-        if (checkNationalCode(reqDto.getNationalCode())) {
-            if (reqDto.getMobileNumber() != null && !checkMobileNumber(reqDto.getMobileNumber()))
-                throw new PushNotificationException("invalid.mobile.no", HttpStatus.BAD_REQUEST);
-            else if (reqDto.getMobileNumber() == null)
-                throw new PushNotificationException("mobile.num.must.not.be.null", HttpStatus.BAD_REQUEST);
-        } else
-            throw new PushNotificationException("invalid.national.code", HttpStatus.BAD_REQUEST);
-
-        return true;
+        return checkNationalCode(reqDto.getNationalCode());
+//        if (checkNationalCode(reqDto.getNationalCode())) {
+//            if (reqDto.getMobileNumber() != null && !checkMobileNumber(reqDto.getMobileNumber()))
+//                throw new PushNotificationException("invalid.mobile.no", HttpStatus.BAD_REQUEST);
+//            else if (reqDto.getMobileNumber() == null)
+//                throw new PushNotificationException("mobile.num.must.not.be.null", HttpStatus.BAD_REQUEST);
+//        } else
+//            throw new PushNotificationException("invalid.national.code", HttpStatus.BAD_REQUEST);
+//
+//        return true;
     }
 
     private boolean checkMobileNumber(String mobileNumber) {

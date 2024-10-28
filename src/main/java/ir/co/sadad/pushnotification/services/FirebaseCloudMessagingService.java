@@ -1,12 +1,13 @@
 package ir.co.sadad.pushnotification.services;
 
 import ir.co.sadad.pushnotification.dtos.MultiMessageReqDto;
+import ir.co.sadad.pushnotification.dtos.SingleMessageReqDto;
 
 public interface FirebaseCloudMessagingService {
 
     void pushNotificationWithJsonData(String title, String description, String noti_id);
 
-    void sendSingle(MultiMessageReqDto msgReq);
+    void sendSingle(SingleMessageReqDto msgReq);
 
     /**
      * MulticastMessage class as part of the Firebase Admin SDK

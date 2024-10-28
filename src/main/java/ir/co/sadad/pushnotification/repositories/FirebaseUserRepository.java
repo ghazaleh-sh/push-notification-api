@@ -11,15 +11,11 @@ import java.util.Optional;
 public interface FirebaseUserRepository extends JpaRepository<FirebaseUser, Long> {
     List<FirebaseUser> findByNationalCode(String nationalCode);
 
-    List<FirebaseUser> findByNationalCodeAndCampaignPushIsTrue(String nationalCode);
+    List<FirebaseUser> findByUserPlatform(UserPlatform platform);
 
-    List<FirebaseUser> findByUserPlatformAndCampaignPushIsTrue(UserPlatform platform);
+    Optional<FirebaseUser> findTopByNationalCodeAndIsActivatedOnTransactionIsTrue(String nationalCode);
 
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndApplicationName(String nationalCode, UserPlatform platform, AppUser applicationName);
+    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndDeviceModelId(String nationalCode, UserPlatform platform, String deviceUniqueId, String deviceModelId);
 
-    Optional<FirebaseUser> findTopByNationalCodeAndIsTrustedIsTrue(String nationalCode);
-
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndModelId(String nationalCode, UserPlatform platform, String deviceUniqueId, String modelId);
-
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndCampaignPushIsTrue(String nationalCode, UserPlatform platform);
+    Optional<FirebaseUser> findByNationalCodeAndUserPlatform(String nationalCode, UserPlatform platform);
 }

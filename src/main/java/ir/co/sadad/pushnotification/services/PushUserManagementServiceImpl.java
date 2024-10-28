@@ -2,12 +2,8 @@ package ir.co.sadad.pushnotification.services;
 
 import ir.co.sadad.pushnotification.common.exceptions.PushNotificationException;
 import ir.co.sadad.pushnotification.common.validators.FirebaseRequest;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateReqDto;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateResDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserResDto;
+import ir.co.sadad.pushnotification.dtos.*;
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
-import ir.co.sadad.pushnotification.enums.UserStatus;
 import ir.co.sadad.pushnotification.mappers.FirebaseUserMapper;
 import ir.co.sadad.pushnotification.repositories.FirebaseUserRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +13,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
@@ -27,7 +25,7 @@ import java.util.Optional;
 public class PushUserManagementServiceImpl implements PushUserManagementService {
 
     private final FirebaseUserRepository firebaseUserRepository;
-    private final FirebaseUserMapper firebaseUserMapper;
+    private final FirebaseUserMapper mapper;
     private final MessageSource messageSource;
 
     @Override
@@ -35,12 +33,12 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
 
         FirebaseUserResDto response = new FirebaseUserResDto();
 
-        Optional<FirebaseUser> firebaseUser = firebaseUserRepository.findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndModelId(
-                firebaseUserReqDto.getNationalCode(), firebaseUserReqDto.getUserPlatform(), firebaseUserReqDto.getDeviceUniqueId(), firebaseUserReqDto.getModelId());
+        Optional<FirebaseUser> firebaseUser = firebaseUserRepository.findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndDeviceModelId(
+                firebaseUserReqDto.getNationalCode(), firebaseUserReqDto.getUserPlatform(),
+                firebaseUserReqDto.getDeviceUniqueId(), firebaseUserReqDto.getDeviceModelId());
         if (firebaseUser.isPresent()) {
             FirebaseUser savedUser = firebaseUser.get();
             savedUser.setFcmToken(firebaseUserReqDto.getFcmToken());
-            savedUser.setUserStatus(firebaseUserReqDto.getUserStatus());
             firebaseUserRepository.saveAndFlush(savedUser);
             response.setMessage(messageSource.getMessage("user.info.updated", null, new Locale("fa")));
 
@@ -54,42 +52,48 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
     }
 
     private void createFirebaseUser(FirebaseUserReqDto reqDto) {
-        FirebaseUser newFBUser = firebaseUserMapper.toEntity(reqDto);
-        newFBUser.setIsTrusted(false);
-        newFBUser.setCampaignPush(false);
+        FirebaseUser newFBUser = mapper.toEntity(reqDto);
+        newFBUser.setIsActivatedOnTransaction(false);
         firebaseUserRepository.saveAndFlush(newFBUser);
     }
 
-    public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn) {
+    public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn, String otp) {
 
-        ActivateDeactivateResDto response = new ActivateDeactivateResDto();
+        try {
+            if (otp == null) {
+                //TODO: call otp service to send otp to user's device
+                return null;
+            } else {
+                //TODO: call otp verification service to check otp correction
 
-        if (reqDto.getIsTrusted()) {
-            firebaseUserRepository.findByNationalCode(ssn).forEach(
-                    firebaseUser -> {
-                        if (firebaseUser.getIsTrusted()) {
-                            firebaseUser.setIsTrusted(false);
-                            firebaseUserRepository.saveAndFlush(firebaseUser);
-                        }
-                    }
-            );
+                ActivateDeactivateResDto response = new ActivateDeactivateResDto();
+
+                firebaseUserRepository.findById(reqDto.getUserId())
+                        .ifPresentOrElse(firebaseUser -> {
+                                    firebaseUser.setIsActivatedOnTransaction(reqDto.getIsActivatedOnTransaction());
+                                    firebaseUserRepository.saveAndFlush(firebaseUser);
+
+                                    response.setActive(reqDto.getIsActivatedOnTransaction());
+                                }, () -> {
+                                    throw new PushNotificationException("user.not.found", HttpStatus.NOT_FOUND);
+                                }
+                        );
+
+                return response;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
-        firebaseUserRepository.findByNationalCodeAndUserPlatformAndApplicationName(ssn, reqDto.getPlatform(), reqDto.getApplicationName())
-                .ifPresentOrElse(firebaseUser -> {
-                            firebaseUser.setIsTrusted(reqDto.getIsTrusted());
-                            if (reqDto.getIsTrusted())
-                                firebaseUser.setUserStatus(UserStatus.ACTIVE);
-                            else
-                                firebaseUser.setUserStatus(UserStatus.NONACTIVE);
-                            firebaseUserRepository.saveAndFlush(firebaseUser);
+    }
 
-                            response.setActive(firebaseUser.getUserStatus().equals(UserStatus.ACTIVE));
-                        }, () -> {
-                            throw new PushNotificationException("user.with.platform.appName.not.found", HttpStatus.NOT_FOUND);
-                        }
-                );
+    @Override
+    public List<UserFcmInfoResDto> userFcmInfo(String ssn) {
+        List<UserFcmInfoResDto> res = new ArrayList<>();
 
-        return response;
+        firebaseUserRepository.findByNationalCode(ssn)
+                .forEach(firebaseUser -> res.add(mapper.toUserFcmInfoRes(firebaseUser)));
+
+        return res;
 
     }
 }

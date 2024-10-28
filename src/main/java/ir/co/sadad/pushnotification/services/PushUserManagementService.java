@@ -1,10 +1,9 @@
 package ir.co.sadad.pushnotification.services;
 
 import ir.co.sadad.pushnotification.common.validators.FirebaseRequest;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateReqDto;
-import ir.co.sadad.pushnotification.dtos.ActivateDeactivateResDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
-import ir.co.sadad.pushnotification.dtos.FirebaseUserResDto;
+import ir.co.sadad.pushnotification.dtos.*;
+
+import java.util.List;
 
 /**
  * this service saves validated users information based on their platform
@@ -17,15 +16,15 @@ public interface PushUserManagementService {
 
     /**
      * gets user information with firebase token and maps them into the table
-     * If user has been saved before, its data will be update.Otherwise, add user info
+     * If user has been saved before, its data will be updated.Otherwise, add user info
      *
-     * @param firebaseUserReqDto -@FirebaseRequest checks ssn and mobile number validity
+     * @param firebaseUserReqDto -@FirebaseRequest checks ssn validity
      * @return FirebaseUserResDto
      */
     FirebaseUserResDto addOrUpdateUserInfo(@FirebaseRequest FirebaseUserReqDto firebaseUserReqDto);
 
     /**
-     * If isTrusted is true in the request based on a platform, this service sets isTrusted of other platforms of the user to false
+     * If isActivatedOnTransaction is true in the request based on a platform, this service sets isTrusted of other platforms of the user to false
      * and sets requested platform to true.
      * Otherwise, sets current platform to false
      *
@@ -33,5 +32,14 @@ public interface PushUserManagementService {
      * @param ssn    as national code
      * @return boolean active
      */
-    ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn);
+    ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn, String otp);
+
+    /**
+     * this service delivers a list of user info (except FcmToken) based on its nationalCode
+     * A user might have more than one device to get push notification
+     *
+     * @param ssn
+     * @return
+     */
+    List<UserFcmInfoResDto> userFcmInfo(String ssn);
 }

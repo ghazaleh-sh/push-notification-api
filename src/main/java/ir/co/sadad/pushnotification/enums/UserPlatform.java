@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 public enum UserPlatform {
     ANDROID("ANDROID"),
     IOS("IOS"),
-    WEB("WEB"),
+    PWA("PWA"),
     ALL("ALL"),
     ANDROID_TEST("ANDROID_TEST");
 

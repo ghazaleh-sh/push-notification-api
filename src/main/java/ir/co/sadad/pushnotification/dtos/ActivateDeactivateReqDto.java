@@ -1,7 +1,5 @@
 package ir.co.sadad.pushnotification.dtos;
 
-import ir.co.sadad.pushnotification.enums.AppUser;
-import ir.co.sadad.pushnotification.enums.UserPlatform;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,11 +9,8 @@ import jakarta.validation.constraints.NotNull;
 @Builder
 public class ActivateDeactivateReqDto {
 
-    @NotNull(message = "{platform.must.not.be.null}")
-    private UserPlatform platform;
+    @NotNull(message = "{userId.must.not.be.null}")
+    private Long userId;
 
-//    @NotNull(message = "{applicationName.must.not.be.null}")
-    private AppUser applicationName;
-
-    private Boolean isTrusted;
+    private Boolean isActivatedOnTransaction;
 }

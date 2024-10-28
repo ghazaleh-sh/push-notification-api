@@ -13,7 +13,7 @@ import ir.co.sadad.pushnotification.dtos.FirebaseUserResDto;
  * @author g.shahrokhabadi
  * 2022/04/24
  */
-public interface PushNotificationService {
+public interface PushUserManagementService {
 
     /**
      * gets user information with firebase token and maps them into the table
@@ -33,5 +33,5 @@ public interface PushNotificationService {
      * @param ssn    as national code
      * @return boolean active
      */
-    ActivateDeactivateResDto activeDeactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn);
+    ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn);
 }

@@ -3,8 +3,8 @@ package ir.co.sadad.pushnotification.entities;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.Set;
+import jakarta.persistence.*;
+//import jakarta.util.Set;
 
 /**
  * @author g.shahrokhabadi

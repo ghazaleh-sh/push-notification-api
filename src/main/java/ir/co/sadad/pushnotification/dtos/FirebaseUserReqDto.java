@@ -3,10 +3,10 @@ package ir.co.sadad.pushnotification.dtos;
 import ir.co.sadad.pushnotification.enums.AppUser;
 import ir.co.sadad.pushnotification.enums.UserPlatform;
 import ir.co.sadad.pushnotification.enums.UserStatus;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-
-import javax.validation.constraints.NotNull;
 
 @Data
 @Builder
@@ -14,7 +14,7 @@ public class FirebaseUserReqDto {
 
     private String userId;
 
-    @NotNull(message = "{fcmToken.must.not.be.null}")
+    @NotBlank(message = "{fcmToken.must.not.be.null}")
     private String fcmToken;
 
     private String nationalCode;

@@ -5,7 +5,7 @@ import ir.co.sadad.pushnotification.enums.UserPlatform;
 import lombok.Builder;
 import lombok.Data;
 
-import javax.validation.constraints.NotNull;
+import jakarta.validation.constraints.NotNull;
 
 @Data
 @Builder

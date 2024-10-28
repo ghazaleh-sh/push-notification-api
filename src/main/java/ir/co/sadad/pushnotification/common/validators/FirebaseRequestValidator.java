@@ -5,8 +5,8 @@ import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
 
-import javax.validation.ConstraintValidator;
-import javax.validation.ConstraintValidatorContext;
+import jakarta.validation.ConstraintValidator;
+import jakarta.validation.ConstraintValidatorContext;
 
 /**
  * @author g.shahrokhabadi
@@ -19,7 +19,7 @@ import javax.validation.ConstraintValidatorContext;
 public class FirebaseRequestValidator implements ConstraintValidator<FirebaseRequest, FirebaseUserReqDto> {
 
     @Override
-    @SneakyThrows
+//    @SneakyThrows
     public boolean isValid(FirebaseUserReqDto reqDto, ConstraintValidatorContext constraintValidatorContext) {
         if (reqDto.getNationalCode() == null) {
             throw new PushNotificationException("national.code.must.not.be.null", HttpStatus.BAD_REQUEST);

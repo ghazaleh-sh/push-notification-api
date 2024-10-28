@@ -24,7 +24,7 @@ import java.util.Optional;
 @Slf4j
 @RequiredArgsConstructor
 @Validated
-public class PushNotificationServiceImpl implements PushNotificationService {
+public class PushUserManagementServiceImpl implements PushUserManagementService {
 
     private final FirebaseUserRepository firebaseUserRepository;
     private final FirebaseUserMapper firebaseUserMapper;
@@ -56,10 +56,11 @@ public class PushNotificationServiceImpl implements PushNotificationService {
     private void createFirebaseUser(FirebaseUserReqDto reqDto) {
         FirebaseUser newFBUser = firebaseUserMapper.toEntity(reqDto);
         newFBUser.setIsTrusted(false);
+        newFBUser.setCampaignPush(false);
         firebaseUserRepository.saveAndFlush(newFBUser);
     }
 
-    public ActivateDeactivateResDto activeDeactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn) {
+    public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn) {
 
         ActivateDeactivateResDto response = new ActivateDeactivateResDto();
 

@@ -1,8 +1,6 @@
 package ir.co.sadad.pushnotification.configs;
 
-import org.modelmapper.Conditions;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
+
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
@@ -29,14 +27,6 @@ public class AppConfig {
         messageSource.setUseCodeAsDefaultMessage(true);
 
         return messageSource;
-    }
-
-    @Bean
-    public ModelMapper modelMapper() {
-        ModelMapper mapper = new ModelMapper();
-        mapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-        mapper.getConfiguration().setPropertyCondition(Conditions.isNotNull());
-        return mapper;
     }
 
     @Bean

@@ -6,7 +6,7 @@ import ir.co.sadad.pushnotification.enums.UserStatus;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 /**
  * @author g.shahrokhabadi
@@ -32,9 +32,9 @@ public class FirebaseUser extends AbstractEntity {
     @Column(name = "MOBILE_NUMBER", columnDefinition = "char(12)", length = 12)
     private String mobileNumber;
 
-//    @Column(name = "APPLICATION_NAME", length = 15, nullable = false)
-//    @Enumerated(EnumType.STRING)
-//    private AppUser applicationName;
+    @Column(name = "APPLICATION_NAME", length = 15, nullable = false)
+    @Enumerated(EnumType.STRING)
+    private AppUser applicationName;
 
     @Column(name = "USER_STATUS", nullable = false, columnDefinition = "varchar(50)", length = 50)
     @Enumerated(EnumType.STRING)
@@ -47,17 +47,17 @@ public class FirebaseUser extends AbstractEntity {
     @Enumerated(EnumType.STRING)
     private UserPlatform userPlatform;
 
-    @Column(name = "IS_TRUSTED", columnDefinition = "SMALLINT DEFAULT 0")
+    @Column(name = "IS_TRUSTED", columnDefinition = "SMALLINT")
 //    @org.hibernate.annotations.ColumnDefault("false")
     private Boolean isTrusted;
 
-    @Column(name = "DEVICE_UNIQUE_ID", length = 100, nullable = false)
+    @Column(name = "DEVICE_UNIQUE_ID", length = 100)//, nullable = false)
     private String deviceUniqueId;
 
     @Column(name = "MODEL_ID", length = 50)
     private String modelId;
 
-    @Column(name = "CAMPAIGN_PUSH", columnDefinition = "SMALLINT DEFAULT 0")
+    @Column(name = "CAMPAIGN_PUSH", columnDefinition = "SMALLINT")
     private Boolean campaignPush;
 
 }

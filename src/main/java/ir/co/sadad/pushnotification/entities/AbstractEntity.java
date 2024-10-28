@@ -1,6 +1,7 @@
 package ir.co.sadad.pushnotification.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedBy;
@@ -8,9 +9,7 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.persistence.*;
 import java.io.Serializable;
 import java.sql.Timestamp;
 import java.util.Date;
@@ -37,10 +36,9 @@ public abstract class AbstractEntity implements Serializable, Cloneable {
     private String createdBy;
 
     @CreatedDate
-    @Column(name = "CREATED_ON", nullable = false, updatable = false)
+    @Column(name = "CREATION_DATE_TIME", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date createdOn;
+    private Date creationDateTime;
 
     @LastModifiedBy
     @Column(name = "MODIFIED_BY", columnDefinition = "char(15)", length = 15)
@@ -49,13 +47,12 @@ public abstract class AbstractEntity implements Serializable, Cloneable {
     @LastModifiedDate
     @Column(name = "MODIFIED_ON")
     @Temporal(TemporalType.TIMESTAMP)
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss" )
     private Date modifiedOn;
 
     @JsonIgnore
     @Version
-    @Column(name = "OPT_LOCK", nullable = false, columnDefinition = "integer DEFAULT 0")
-    private Long version = 0L;
+    @Column(name = "OPT_LOCK", columnDefinition = "INTEGER DEFAULT 0")
+    private Integer version = 0;
 
     @JsonIgnore
     public boolean isNew() {
@@ -63,4 +60,14 @@ public abstract class AbstractEntity implements Serializable, Cloneable {
     }
 
 
+    @Override
+    public AbstractEntity clone() {
+        try {
+            AbstractEntity clone = (AbstractEntity) super.clone();
+            // TODO: copy mutable state here, so the clone can't change the internals of the original
+            return clone;
+        } catch (CloneNotSupportedException e) {
+            throw new AssertionError();
+        }
+    }
 }

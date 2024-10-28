@@ -11,19 +11,14 @@ import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 @EnableJpaAuditing(auditorAwareRef = "auditorProvider")
 public class AuditConfiguration {
 
-    private final Environment environment;
-
-    public AuditConfiguration(Environment environment) {
-        this.environment = environment;
-    }
-
     /**
-     * Config to use Audit Provider to Return bmi identity client Id for Auditor
+     * Config to use Audit Provider to Return bmi identity ssn for Auditor
+     *
      * @return
      */
     @Bean
     public AuditorAware<String> auditorProvider() {
-        return new AuditorAwareImpl(environment);
+        return new AuditorAwareImpl();
     }
 
 }

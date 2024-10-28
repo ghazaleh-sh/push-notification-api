@@ -5,15 +5,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 //import ir.bmi.identity.security.interceptor.Scope;
 import ir.co.sadad.pushnotification.dtos.*;
 import ir.co.sadad.pushnotification.enums.AppUser;
-import ir.co.sadad.pushnotification.services.HttpV1ServiceImpl;
-import ir.co.sadad.pushnotification.services.PushNotificationService;
+import ir.co.sadad.pushnotification.services.FirebaseCloudMessagingService;
+import ir.co.sadad.pushnotification.services.PushUserManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import static ir.co.sadad.pushnotification.common.Constants.*;
 
@@ -29,8 +29,8 @@ import static ir.co.sadad.pushnotification.common.Constants.*;
 @Tag(description = "مستندات مدیریت پوش نوتیفیکیشن", name = "Push Notification API")
 public class PushNotificationController {
 
-    private final PushNotificationService pushNotificationService;
-    private final HttpV1ServiceImpl httpV1Service;
+    private final PushUserManagementService pushUserManagementService;
+    private final FirebaseCloudMessagingService firebaseCloudMessagingService;
 
 //    @Scope(values = "hambam-push-notification-secure")
     @Operation(summary = "سرویس ثبت مشخصات کاربر بام پی", description = "سرویسی که مشخصات کاربر را در دیتابیس ذخیره میکند")
@@ -47,7 +47,7 @@ public class PushNotificationController {
         reqDto.setSerialId(serialId);
         reqDto.setApplicationName(AppUser.BAAMPAY);
         reqDto.setUserId(userId);
-        pushNotificationService.addOrUpdateUserInfo(reqDto);
+        pushUserManagementService.addOrUpdateUserInfo(reqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -63,7 +63,7 @@ public class PushNotificationController {
         reqDto.setSerialId(serialId);
         reqDto.setUserId(userId);
         reqDto.setApplicationName(AppUser.HAMRAHBAM);
-        FirebaseUserResDto response = pushNotificationService.addOrUpdateUserInfo(reqDto);
+        FirebaseUserResDto response = pushUserManagementService.addOrUpdateUserInfo(reqDto);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -74,7 +74,7 @@ public class PushNotificationController {
             @Valid @RequestBody ActivateDeactivateReqDto reqDto,
             @RequestHeader(SSN) String ssn) {
         reqDto.setApplicationName(AppUser.HAMRAHBAM);
-        ActivateDeactivateResDto response = pushNotificationService.activeDeactivePushForUser(reqDto, ssn);
+        ActivateDeactivateResDto response = pushUserManagementService.activeInactivePushForUser(reqDto, ssn);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -86,7 +86,7 @@ public class PushNotificationController {
             @RequestParam String description,
             @RequestParam String noti_id) {
         try {
-            this.httpV1Service.pushNotificationWithJsonData(
+            this.firebaseCloudMessagingService.pushNotificationWithJsonData(
                     title,
                     description,
                     noti_id);
@@ -100,15 +100,16 @@ public class PushNotificationController {
     @PostMapping(value = "/campaign-send")
     public ResponseEntity<HttpStatus> sendMulticastMessage(
             @RequestBody MultiMessageReqDto reqDto) {
-        this.httpV1Service.sendMulticast(reqDto);
+        this.firebaseCloudMessagingService.sendMulticast(reqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+//    @Scope(values = "customer-super")
     @Operation(summary = "سرویس ارسال پوش به یک کاربر توسط سرویس های third-party اعلانات", description = "این سرویس ")
     @PostMapping(value = "/single-send")
     public ResponseEntity<HttpStatus> sendSingleMessage(
             @RequestBody MultiMessageReqDto reqDto) {
-        this.httpV1Service.sendSingle(reqDto);
+        firebaseCloudMessagingService.sendSingle(reqDto);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 

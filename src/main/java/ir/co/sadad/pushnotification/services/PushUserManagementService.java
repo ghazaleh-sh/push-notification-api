@@ -29,10 +29,9 @@ public interface PushUserManagementService {
      * Otherwise, sets current platform to false
      *
      * @param reqDto activation or deactivation by isTrusted field, platform and applicationName which sets by default
-     * @param ssn    as national code
      * @return boolean active
      */
-    ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn, String otp);
+    ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String authToken, String otp);
 
     /**
      * this service delivers a list of user info (except FcmToken) based on its nationalCode

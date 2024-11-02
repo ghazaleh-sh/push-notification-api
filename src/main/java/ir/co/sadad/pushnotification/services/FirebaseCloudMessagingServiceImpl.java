@@ -140,7 +140,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
                         .setBody(msgReq.getDescription() + " " + msgReq.getHyperlink())
                         .build();
 
-                callMulticastSDKService(campaingNotification, registrationTokens);
+                callMulticastSDKService(campaingNotification, msgReq.getHyperlink(), registrationTokens);
             }
 
         } catch (Exception e) {
@@ -149,7 +149,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
     }
 
     @Async //to parallelize the sending process.
-    protected void callMulticastSDKService(Notification campaingNotification, List<String> registrationTokens) {
+    protected void callMulticastSDKService(Notification campaingNotification, String hyperlink, List<String> registrationTokens) {
         try {
             List<List<String>> batches = Lists.partition(registrationTokens, 500); // splits the token list into batches of 500
 
@@ -157,6 +157,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 
                 MulticastMessage message = MulticastMessage.builder()
                         .setNotification(campaingNotification)
+                        .putData("hyperlink", hyperlink)
                         .addAllTokens(batch)
                         .build();
                 BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
@@ -223,7 +224,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 //    }
 
 
-//    /**
+    //    /**
 //     * Send request to FCM message using HTTP.
 //     * Encoded with UTF-8 and support special characters.
 //     *

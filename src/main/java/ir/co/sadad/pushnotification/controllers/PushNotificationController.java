@@ -9,6 +9,7 @@ import ir.co.sadad.pushnotification.services.FirebaseCloudMessagingService;
 import ir.co.sadad.pushnotification.services.PushUserManagementService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -69,9 +70,9 @@ public class PushNotificationController {
     @PutMapping(value = "/setting")
     public ResponseEntity<ActivateDeactivateResDto> activePushForUser(
             @Valid @RequestBody ActivateDeactivateReqDto reqDto,
-            @RequestHeader(SSN) String ssn,
+            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
             @RequestHeader("otp") String otp) {
-        ActivateDeactivateResDto response = pushUserManagementService.activeInactivePushForUser(reqDto, ssn, otp);
+        ActivateDeactivateResDto response = pushUserManagementService.activeInactivePushForUser(reqDto, authToken, otp);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

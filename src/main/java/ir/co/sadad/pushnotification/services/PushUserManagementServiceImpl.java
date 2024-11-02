@@ -6,6 +6,7 @@ import ir.co.sadad.pushnotification.dtos.*;
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
 import ir.co.sadad.pushnotification.mappers.FirebaseUserMapper;
 import ir.co.sadad.pushnotification.repositories.FirebaseUserRepository;
+import ir.co.sadad.pushnotification.services.sso.SsoTanService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
@@ -27,6 +28,7 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
     private final FirebaseUserRepository firebaseUserRepository;
     private final FirebaseUserMapper mapper;
     private final MessageSource messageSource;
+    private final SsoTanService ssoTanService;
 
     @Override
     public FirebaseUserResDto addOrUpdateUserInfo(@FirebaseRequest FirebaseUserReqDto firebaseUserReqDto) {
@@ -57,32 +59,29 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
         firebaseUserRepository.saveAndFlush(newFBUser);
     }
 
-    public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String ssn, String otp) {
+    public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String authToken, String otp) {
 
-        try {
-            if (otp == null) {
-                //TODO: call otp service to send otp to user's device
-                return null;
-            } else {
-                //TODO: call otp verification service to check otp correction
+        if (otp == null) {
+            ssoTanService.sendTanRequest(authToken);
+            return null;
 
-                ActivateDeactivateResDto response = new ActivateDeactivateResDto();
+        } else {
+            ssoTanService.tanVerification(authToken, otp);
 
-                firebaseUserRepository.findById(reqDto.getUserId())
-                        .ifPresentOrElse(firebaseUser -> {
-                                    firebaseUser.setIsActivatedOnTransaction(reqDto.getIsActivatedOnTransaction());
-                                    firebaseUserRepository.saveAndFlush(firebaseUser);
+            ActivateDeactivateResDto response = new ActivateDeactivateResDto();
 
-                                    response.setActive(reqDto.getIsActivatedOnTransaction());
-                                }, () -> {
-                                    throw new PushNotificationException("user.not.found", HttpStatus.NOT_FOUND);
-                                }
-                        );
+            firebaseUserRepository.findById(reqDto.getUserId())
+                    .ifPresentOrElse(firebaseUser -> {
+                                firebaseUser.setIsActivatedOnTransaction(reqDto.getIsActivatedOnTransaction());
+                                firebaseUserRepository.saveAndFlush(firebaseUser);
 
-                return response;
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
+                                response.setActive(reqDto.getIsActivatedOnTransaction());
+                            }, () -> {
+                                throw new PushNotificationException("user.not.found", HttpStatus.NOT_FOUND);
+                            }
+                    );
+
+            return response;
         }
     }
 

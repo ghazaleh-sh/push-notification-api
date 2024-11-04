@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>2.5.4</version><!-- 2.6.7 version is not working with SSO library -->
+        <version>3.3.1</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>ir.co.sadad</groupId>
@@ -15,99 +15,15 @@
     <name>push-notification</name>
     <description>mapping firebase token to users</description>
     <properties>
-        <java.version>11</java.version>
-        <org.mapstruct.version>1.4.1.Final</org.mapstruct.version>
+        <java.version>17</java.version>
+        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
         <org.apache.common.version>3.11</org.apache.common.version>
-        <querydsl-core.version>4.4.0</querydsl-core.version>
+<!--        <querydsl-core.version>4.4.0</querydsl-core.version>-->
         <open.api.version>1.4.8</open.api.version>
-        <javax.servlet.version>1.2</javax.servlet.version>
-        <spring-cloud.version>2020.0.3</spring-cloud.version>
+        <spring-cloud.version>2023.0.1</spring-cloud.version>
         <hazelcast.version>3.11.4</hazelcast.version>
         <log4j2.version>2.16.0</log4j2.version>
     </properties>
-
-    <profiles>
-        <!--############################ Test ############################-->
-        <profile>
-            <id>qa</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter-tomcat</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-            <properties>
-                <docker.image.prefix>baam</docker.image.prefix>
-                <active.spring.profile>qa</active.spring.profile>
-            </properties>
-            <build>
-                <resources>
-                    <resource>
-                        <directory>${project.basedir}/src/main/resources</directory>
-                        <filtering>true</filtering>
-                        <includes>
-                            <include>banner.txt</include>
-                            <include>message_fa.properties</include>
-                            <include>application.yml</include>
-                            <include>secret.key</include>
-                            <include>application-security.yml</include>
-                            <include>logback.xml</include>
-                        </includes>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-        <!--############################ Production ############################-->
-        <profile>
-            <id>prod</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-web</artifactId>
-                    <exclusions>
-                        <exclusion>
-                            <groupId>org.springframework.boot</groupId>
-                            <artifactId>spring-boot-starter-tomcat</artifactId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-                <dependency>
-                    <groupId>org.springframework.boot</groupId>
-                    <artifactId>spring-boot-starter-tomcat</artifactId>
-                    <scope>provided</scope>
-                </dependency>
-            </dependencies>
-            <properties>
-                <docker.image.prefix>baam</docker.image.prefix>
-                <active.spring.profile>prod</active.spring.profile>
-            </properties>
-            <build>
-                <resources>
-                    <resource>
-                        <filtering>true</filtering>
-                        <directory>${project.basedir}/src/main/resources</directory>
-                        <includes>
-                            <include>banner.txt</include>
-                            <include>message_fa.properties</include>
-                            <include>bootstrap.yml</include>
-                            <include>logback.xml</include>
-                        </includes>
-                    </resource>
-                </resources>
-            </build>
-        </profile>
-    </profiles>
 
     <dependencies>
         <dependency>
@@ -123,25 +39,25 @@
 <!--        <dependency>-->
 <!--            <groupId>com.google.cloud</groupId>-->
 <!--            <artifactId>google-cloud-storage</artifactId>-->
-<!--            <version>1.3.0</version>-->
 <!--        </dependency>-->
         <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <scope>runtime</scope>
+            <groupId>ir.co.sadad.hambaam</groupId>
+            <artifactId>persian-datetime</artifactId>
+            <version>1.0.3-SNAPSHOT</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-starter-bootstrap</artifactId>-->
-<!--            <version>3.0.4</version>-->
-<!--        </dependency>-->
+
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+            <version>3.0.4</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -151,14 +67,9 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-validation</artifactId>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.cloud</groupId>-->
-<!--            <artifactId>spring-cloud-config-client</artifactId>-->
-<!--        </dependency>-->
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpmime</artifactId>
-            <version>4.5.13</version>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-config-client</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -166,11 +77,11 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>com.ibm.db2</groupId>-->
-<!--            <artifactId>jcc</artifactId>-->
-<!--            <version>11.5.0.0</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>com.ibm.db2.jcc</groupId>
+            <artifactId>db2jcc4</artifactId>
+            <version>10.1</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
@@ -181,11 +92,6 @@
             <artifactId>lombok</artifactId>
             <optional>true</optional>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--            <scope>provided</scope>-->
-<!--        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
@@ -194,27 +100,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-webflux</artifactId>
-            <!--            <scope>test</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.62</version>
-        </dependency>
-        <dependency>
-            <groupId>org.modelmapper</groupId>
-            <artifactId>modelmapper</artifactId>
-            <version>2.3.8</version>
         </dependency>
         <!--############################ (querydsl) ############################-->
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.querydsl</groupId>
-            <artifactId>querydsl-jpa</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.querydsl</groupId>-->
+<!--            <artifactId>querydsl-core</artifactId>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.querydsl</groupId>-->
+<!--            <artifactId>querydsl-jpa</artifactId>-->
+<!--        </dependency>-->
         <!--############################ (OpenApi) ############################-->
         <dependency>
             <groupId>org.springdoc</groupId>
@@ -231,14 +126,12 @@
             <artifactId>springdoc-openapi-data-rest</artifactId>
             <version>1.5.4</version>
         </dependency>
+
+        <!--############################ mapstruct ############################-->
         <dependency>
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jayway.jsonpath</groupId>
-            <artifactId>json-path</artifactId>
-            <version>2.4.0</version>
+            <version>${org.mapstruct.version}</version>
         </dependency>
         <!--############################ SSO ############################-->
 <!--        <dependency>-->
@@ -246,31 +139,22 @@
 <!--            <artifactId>client-security-starter-v2</artifactId>-->
 <!--            <version>1.2.1</version>-->
 <!--        </dependency>-->
+
+
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
         </dependency>
         <dependency>
-            <groupId>javax.el</groupId>
-            <artifactId>javax.el-api</artifactId>
-            <version>3.0.0</version>
-            <scope>test</scope>
+            <groupId>io.github.classgraph</groupId>
+            <artifactId>classgraph</artifactId>
+            <version>4.8.172</version>
         </dependency>
-        <dependency>
-            <groupId>org.glassfish</groupId>
-            <artifactId>javax.el</artifactId>
-            <version>3.0.0</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.github.fge</groupId>
-            <artifactId>jackson-coreutils</artifactId>
-            <version>1.8</version>
-        </dependency>
+        <!--############################ LOG ############################-->
         <dependency>
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
-            <version>6.6</version>
+            <version>4.9</version>
         </dependency>
     </dependencies>
 
@@ -288,35 +172,6 @@
                         </exclude>
                     </excludes>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>repackage</id>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-<!--                        <configuration>-->
-<!--                            <skip>true</skip>-->
-<!--                        </configuration>-->
-                    </execution>
-                    <execution>
-                        <id>build-info</id>
-                        <goals>
-                            <goal>build-info</goal>
-                        </goals>
-                    </execution>
-                    <!--                    <execution>-->
-                    <!--                        <id>pre-integration-test</id>-->
-                    <!--                        <goals>-->
-                    <!--                            <goal>start</goal>-->
-                    <!--                        </goals>-->
-                    <!--                    </execution>-->
-                    <!--                    <execution>-->
-                    <!--                        <id>post-integration-test</id>-->
-                    <!--                        <goals>-->
-                    <!--                            <goal>stop</goal>-->
-                    <!--                        </goals>-->
-                    <!--                    </execution>-->
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -329,7 +184,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.16</version>
+                            <version>1.18.32</version>
                         </path>
                         <path>
                             <groupId>org.mapstruct</groupId>
@@ -341,94 +196,29 @@
                 </configuration>
             </plugin>
             <!-- Query DSL -->
-            <plugin>
-                <groupId>com.mysema.maven</groupId>
-                <artifactId>apt-maven-plugin</artifactId>
-                <version>1.1.3</version>
-                <executions>
-                    <execution>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>process</goal>
-                        </goals>
-                        <configuration>
-                            <outputDirectory>target/generated-sources/java</outputDirectory>
-                            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>
-                        </configuration>
-                    </execution>
-                </executions>
-                <dependencies>
-                    <dependency>
-                        <groupId>com.querydsl</groupId>
-                        <artifactId>querydsl-apt</artifactId>
-                        <version>${querydsl-core.version}</version>
-                    </dependency>
-                </dependencies>
-            </plugin>
-            <!--Config unit Test and Integration Tests -->
 <!--            <plugin>-->
-<!--                <groupId>org.apache.maven.plugins</groupId>-->
-<!--                <artifactId>maven-surefire-plugin</artifactId>-->
-<!--                <configuration>-->
-<!--                    <forkCount>3</forkCount>-->
-<!--                    <reuseForks>true</reuseForks>-->
-<!--                    <testFailureIgnore>false</testFailureIgnore>-->
-<!--                    <excludes>-->
-<!--                        <exclude>**/it/**</exclude>-->
-<!--                    </excludes>-->
-<!--                </configuration>-->
+<!--                <groupId>com.mysema.maven</groupId>-->
+<!--                <artifactId>apt-maven-plugin</artifactId>-->
+<!--                <version>1.1.3</version>-->
 <!--                <executions>-->
 <!--                    <execution>-->
-<!--                        <id>integration-test</id>-->
+<!--                        <phase>generate-sources</phase>-->
 <!--                        <goals>-->
-<!--                            <goal>test</goal>-->
+<!--                            <goal>process</goal>-->
 <!--                        </goals>-->
-<!--                        <phase>integration-test</phase>-->
 <!--                        <configuration>-->
-<!--                            <excludes>-->
-<!--                                <exclude>none</exclude>-->
-<!--                            </excludes>-->
-<!--                            <includes>-->
-<!--                                <include>**/*IT.java</include>-->
-<!--                                <include>**/*AT.java</include>-->
-<!--                            </includes>-->
+<!--                            <outputDirectory>target/generated-sources/java</outputDirectory>-->
+<!--                            <processor>com.querydsl.apt.jpa.JPAAnnotationProcessor</processor>-->
 <!--                        </configuration>-->
 <!--                    </execution>-->
 <!--                </executions>-->
-<!--            </plugin>-->
-            <!-- Plugin to separate integration tests -->
-<!--            <plugin>-->
-<!--                <groupId>org.codehaus.mojo</groupId>-->
-<!--                <artifactId>build-helper-maven-plugin</artifactId>-->
-<!--                <version>3.2.0</version>-->
-<!--                <executions>-->
-<!--                    <execution>-->
-<!--                        <id>add-test-source</id>-->
-<!--                        <phase>process-resources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>add-test-source</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <sources>-->
-<!--                                <source>src/it/java</source>-->
-<!--                            </sources>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                    <execution>-->
-<!--                        <id>add-integration-test-resources</id>-->
-<!--                        <phase>generate-test-resources</phase>-->
-<!--                        <goals>-->
-<!--                            <goal>add-test-resource</goal>-->
-<!--                        </goals>-->
-<!--                        <configuration>-->
-<!--                            <resources>-->
-<!--                                <resource>-->
-<!--                                    <directory>src/it/resources</directory>-->
-<!--                                </resource>-->
-<!--                            </resources>-->
-<!--                        </configuration>-->
-<!--                    </execution>-->
-<!--                </executions>-->
+<!--                <dependencies>-->
+<!--                    <dependency>-->
+<!--                        <groupId>com.querydsl</groupId>-->
+<!--                        <artifactId>querydsl-apt</artifactId>-->
+<!--                        <version>${querydsl-core.version}</version>-->
+<!--                    </dependency>-->
+<!--                </dependencies>-->
 <!--            </plugin>-->
         </plugins>
     </build>
@@ -452,9 +242,6 @@
                 <artifactId>commons-lang3</artifactId>
                 <version>${org.apache.common.version}</version>
             </dependency>
-<!-- GCS: play a complementary role in efficiently managing large-scale notification campaigns, does not send notifications directly
-        by storing files in CSV, JSON, or other formats that hold a list of device tokens or containing up to 500 device tokens as batch files
-        by storing various payloads or message content that you will send to different user segments, storing logs-->
 <!--            <dependency>-->
 <!--                <groupId>com.google.cloud</groupId>-->
 <!--                <artifactId>libraries-bom</artifactId>-->
@@ -462,17 +249,16 @@
 <!--                <type>pom</type>-->
 <!--                <scope>import</scope>-->
 <!--            </dependency>-->
-
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-core</artifactId>
-                <version>${querydsl-core.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.querydsl</groupId>
-                <artifactId>querydsl-jpa</artifactId>
-                <version>${querydsl-core.version}</version>
-            </dependency>
+<!--            <dependency>-->
+<!--                <groupId>com.querydsl</groupId>-->
+<!--                <artifactId>querydsl-core</artifactId>-->
+<!--                <version>${querydsl-core.version}</version>-->
+<!--            </dependency>-->
+<!--            <dependency>-->
+<!--                <groupId>com.querydsl</groupId>-->
+<!--                <artifactId>querydsl-jpa</artifactId>-->
+<!--                <version>${querydsl-core.version}</version>-->
+<!--            </dependency>-->
             <dependency>
                 <groupId>org.springdoc</groupId>
                 <artifactId>springdoc-openapi-ui</artifactId>

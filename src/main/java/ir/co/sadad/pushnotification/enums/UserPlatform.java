@@ -3,6 +3,7 @@ package ir.co.sadad.pushnotification.enums;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import ir.co.sadad.pushnotification.common.exceptions.PushNotificationException;
+import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
@@ -12,13 +13,16 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+@Getter
 @RequiredArgsConstructor
 //For representing Enums as a JSON Object
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+//@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum UserPlatform {
     ANDROID("ANDROID"),
     IOS("IOS"),
-    WEB("WEB");
+    PWA("PWA"),
+    ALL("ALL"),
+    ANDROID_TEST("ANDROID_TEST");
 
     private static final Map<String, UserPlatform> FORMAT_MAP = Stream
             .of(UserPlatform.values())

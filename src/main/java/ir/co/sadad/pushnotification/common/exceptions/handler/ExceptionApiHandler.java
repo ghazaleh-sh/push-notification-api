@@ -14,7 +14,6 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 
 
@@ -41,6 +40,7 @@ public class ExceptionApiHandler {
                 .setStatus(ex.getHttpStatus())
                 .setTimestamp(new Date().getTime())
                 .setCode("E" + (ex.getCode() == null ? ex.getHttpStatus().value() : ex.getCode()))
+                .setMessage(ex.getMessage())
                 .setLocalizedMessage(localizedMessage);
 
         return new ResponseEntity<>(globalErrorResponse, ex.getHttpStatus());

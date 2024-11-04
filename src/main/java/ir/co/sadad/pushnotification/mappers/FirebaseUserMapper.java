@@ -1,6 +1,7 @@
 package ir.co.sadad.pushnotification.mappers;
 
 import ir.co.sadad.pushnotification.dtos.FirebaseUserReqDto;
+import ir.co.sadad.pushnotification.dtos.UserFcmInfoResDto;
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -14,4 +15,6 @@ import org.mapstruct.ReportingPolicy;
 @Mapper(unmappedTargetPolicy = ReportingPolicy.IGNORE, componentModel = "spring")
 public interface FirebaseUserMapper {
     FirebaseUser toEntity(FirebaseUserReqDto firebaseUserReqDto);
+
+    UserFcmInfoResDto toUserFcmInfoRes(FirebaseUser firebaseUser);
 }

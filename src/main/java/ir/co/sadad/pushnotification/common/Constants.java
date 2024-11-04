@@ -6,4 +6,6 @@ public interface Constants {
     String SSN = "ssn";
     String CELL_PHONE = "cellphone";
     String CLIENT_ID = "clientId";
+    String MESSAGE_KEY = "message";
+    String HTTPV1_ENDPOINT = "/messages:send";
 }

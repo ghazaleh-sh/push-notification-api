@@ -7,13 +7,18 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface FirebaseUserRepository extends JpaRepository<FirebaseUser, Long> {
     List<FirebaseUser> findByNationalCode(String nationalCode);
 
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndApplicationName(String nationalCode, UserPlatform platform, AppUser applicationName);
+    List<FirebaseUser> findByUserPlatform(UserPlatform platform);
 
-    Optional<FirebaseUser> findTopByNationalCodeAndIsTrustedIsTrue(String nationalCode);
+    Optional<FirebaseUser> findByUserUuid(UUID userUuid);
 
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndModelId(String nationalCode, UserPlatform platform, String deviceUniqueId, String modelId);
+    Optional<FirebaseUser> findTopByNationalCodeAndIsActivatedOnTransactionIsTrue(String nationalCode);
+
+    Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndDeviceModelId(String nationalCode, UserPlatform platform, String deviceUniqueId, String deviceModelId);
+
+    Optional<FirebaseUser> findByNationalCodeAndUserPlatform(String nationalCode, UserPlatform platform);
 }

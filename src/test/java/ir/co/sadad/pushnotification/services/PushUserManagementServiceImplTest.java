@@ -8,11 +8,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 
 @Transactional
-class PushNotificationServiceImplTest extends PushNotificationApplicationTests {
+class PushUserManagementServiceImplTest extends PushNotificationApplicationTests {
 
     @Autowired
     private PushUserManagementService service;
@@ -22,7 +21,7 @@ class PushNotificationServiceImplTest extends PushNotificationApplicationTests {
     private String otp = "111";
     private String deviceId = "5700cd58df7";
 
-    PushNotificationServiceImplTest() {
+    PushUserManagementServiceImplTest() {
     }
 
     @Test
@@ -30,15 +29,14 @@ class PushNotificationServiceImplTest extends PushNotificationApplicationTests {
         FirebaseUserReqDto reqDto = FirebaseUserReqDto.builder()
                 .fcmToken("8888888888888888888")
                 .nationalCode(ssn)
-                .userPlatform(UserPlatform.PWA)
-                .build();
+                .userPlatform(UserPlatform.PWA).build();
 
         assertEquals("user.info.added", service.addOrUpdateUserInfo(reqDto).getMessage());
 
     }
 
     @Test
-    void shouldActiveUser() {
+    void shouldActiveUser(){
         ActivateDeactivateReqDto act = ActivateDeactivateReqDto.builder()
                 .isActivatedOnTransaction(true).build();
 

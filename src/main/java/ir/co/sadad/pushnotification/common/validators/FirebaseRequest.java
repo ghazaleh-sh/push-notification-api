@@ -1,7 +1,7 @@
 package ir.co.sadad.pushnotification.common.validators;
 
-import javax.validation.Constraint;
-import javax.validation.Payload;
+import jakarta.validation.Constraint;
+import jakarta.validation.Payload;
 import java.lang.annotation.Documented;
 import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = {FirebaseRequestValidator.class})
 public @interface FirebaseRequest {
 
-    String message() default "ebp.exceptions.validator.EBP40000028";
+    String message() default "exceptions.validator.nationalCode";
 
     Class<?>[] groups() default {};
 

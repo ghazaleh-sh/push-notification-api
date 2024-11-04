@@ -36,9 +36,9 @@ public abstract class AbstractEntity implements Serializable, Cloneable {
     private String createdBy;
 
     @CreatedDate
-    @Column(name = "CREATION_DATE_TIME", updatable = false)
+    @Column(name = "CREATED_ON", updatable = false)
     @Temporal(TemporalType.TIMESTAMP)
-    private Date creationDateTime;
+    private Date createdOn;
 
     @LastModifiedBy
     @Column(name = "MODIFIED_BY", columnDefinition = "char(15)", length = 15)

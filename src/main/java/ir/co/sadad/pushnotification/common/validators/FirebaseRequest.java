@@ -17,7 +17,7 @@ import static java.lang.annotation.RetentionPolicy.RUNTIME;
 @Constraint(validatedBy = {FirebaseRequestValidator.class})
 public @interface FirebaseRequest {
 
-    String message() default "ebp.exceptions.validator.EBP40000028";
+    String message() default "exceptions.validator.nationalCode";
 
     Class<?>[] groups() default {};
 

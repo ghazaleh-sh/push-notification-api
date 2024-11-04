@@ -5,12 +5,14 @@ import lombok.Data;
 
 import jakarta.validation.constraints.NotNull;
 
+import java.util.UUID;
+
 @Data
 @Builder
 public class ActivateDeactivateReqDto {
 
     @NotNull(message = "{userId.must.not.be.null}")
-    private Long userId;
+    private UUID userUuid;
 
     private Boolean isActivatedOnTransaction;
 }

@@ -19,19 +19,26 @@ public class SsoTanServiceImpl implements SsoTanService {
 
     private final WebClient webClient;
 
-    @Value(value = "${sso.send-otp}") //PORT:IP/identity-manager/users/tan
+    @Value(value = "${sso.base-url}")
+    private String ssoBaseUrl;
+
+    @Value(value = "${sso.send-otp}")
     private String sendOtpPath;
 
-    @Value(value = "${sso.verify-otp}") //PORT:IP/identity-manager/users/tan
+    @Value(value = "${sso.verify-otp}")
     private String verifyOtpPath;
 
     @Override
     public void sendTanRequest(String userPasswordToken) {
-        String otpMessage = "کد تایید";
+        String otpMessage = "بانک ملی (هشدار) لطفا جهت فعالسازی پوش نوتیفیکیشن شناسه زیر را وارد کنید:";
+//                """
+//                بانک ملی (هشدار)
+//                 لطفا جهت فعالسازی پوش نوتیفیکیشن شناسه زیر را وارد کنید:
+//                """;
 
         webClient
                 .get()
-                .uri(uriBuilder -> uriBuilder.path(sendOtpPath)
+                .uri(ssoBaseUrl + sendOtpPath, uriBuilder -> uriBuilder
                         .queryParam("msg", otpMessage)
                         .build())
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + userPasswordToken)
@@ -60,7 +67,7 @@ public class SsoTanServiceImpl implements SsoTanService {
     public void tanVerification(String userPasswordToken, String otpCode) {
         webClient
                 .post()
-                .uri(verifyOtpPath)
+                .uri(ssoBaseUrl + verifyOtpPath)
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + userPasswordToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
                 .bodyValue(otpCode)
@@ -75,13 +82,9 @@ public class SsoTanServiceImpl implements SsoTanService {
                 })
                 .onStatus(HttpStatusCode::is5xxServerError, clientResponse -> {
                     log.error("5xx Error: {}", clientResponse.statusCode());
-                    return clientResponse.bodyToMono(SsoErrorDto.class)
-                            .flatMap(errorBody -> {
-                                log.error("Error 5XX response body: {}", errorBody.getError());
-                                return Mono.error(new PushNotificationException(errorBody.getError(), HttpStatus.BAD_REQUEST));
-                            });
+                    return Mono.error(new PushNotificationException("EXTERNAL_ERROR", HttpStatus.BAD_REQUEST));
                 })
                 .bodyToMono(Void.class)
-                .subscribe();
+                .block();
     }
 }

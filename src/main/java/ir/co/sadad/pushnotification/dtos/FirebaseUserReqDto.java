@@ -3,7 +3,6 @@ package ir.co.sadad.pushnotification.dtos;
 import ir.co.sadad.pushnotification.enums.UserPlatform;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import lombok.Builder;
 import lombok.Data;
 
@@ -17,7 +16,6 @@ public class FirebaseUserReqDto {
     @NotBlank(message = "{national.code.must.not.be.null}")
     private String nationalCode;
 
-    @Pattern(regexp = "^(ANDROID|IOS|WEB)$", message = "{platform.not.valid}")
     @NotNull(message = "{platform.must.not.be.null}")
     private UserPlatform userPlatform;
 

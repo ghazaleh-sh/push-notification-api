@@ -16,7 +16,7 @@ import java.util.stream.Stream;
 @Getter
 @RequiredArgsConstructor
 //For representing Enums as a JSON Object
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
+//@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum UserPlatform {
     ANDROID("ANDROID"),
     IOS("IOS"),

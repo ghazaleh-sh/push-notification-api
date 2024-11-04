@@ -23,11 +23,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
-import java.util.Scanner;
 
 import static ir.co.sadad.pushnotification.common.Constants.HTTPV1_ENDPOINT;
 import static ir.co.sadad.pushnotification.common.Constants.MESSAGE_KEY;
@@ -44,9 +41,9 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
     private String project_id;
 
     @Value(value = "${fcm.service.scope}")
-    private static String MESSAGING_SCOPE;
+    private String MESSAGING_SCOPE;
 
-    private static final String[] SCOPES = {MESSAGING_SCOPE};
+//    private final String[] SCOPES = {MESSAGING_SCOPE};
 
     @Value(value = "${fcm.endpoint.httpV1-send-url}")
     private String path;
@@ -61,10 +58,12 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
         if (msgReq.getSsn() == null || msgReq.getSsn().isEmpty())
             return;
 
-        List<String> userFCMToken;// = "cjXADdcGQs-G7N6ks5lXS-:APA91bFJPY_8iI-06ARajU1WaNDtZNXi4AphlojKx4fKsu9YArq1FFZ_jvkyC21rfwF-28VrUUNCOhXgQsLoCn8EV1WfZb4vzxgg7uBIjbqArY5-ZX39E8nzfmF9Ugy1HXhpDzczbXEx";
+        //TODO: to send campaign notices we don't need to get user permission, but for transaction messages we must check if the isActivatedOnTransaction field is true
+
+        List<String> userFCMToken;
         List<FirebaseUser> userInfoToPush;
 
-        if (UserPlatform.ALL.toString().equals(msgReq.getPlatform()))
+        if (msgReq.getPlatform() == null || UserPlatform.ALL.toString().equals(msgReq.getPlatform()))
             userInfoToPush = firebaseUserRepository.findByNationalCode(msgReq.getSsn());
         else
             userInfoToPush = firebaseUserRepository.findByNationalCodeAndUserPlatform(
@@ -73,10 +72,6 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 
         if (!userInfoToPush.isEmpty()) {
             userFCMToken = userInfoToPush.stream().map(FirebaseUser::getFcmToken).toList();
-
-//        if (msgReq.getActivationDate().compareTo(currentDate) > 0) {
-//            //TODO: send this notification toward the job
-//        }
 
             callHttpV1Api(msgReq, userFCMToken);
         }
@@ -90,7 +85,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
                         .uri(path + project_id + HTTPV1_ENDPOINT)
                         .header(HttpHeaders.AUTHORIZATION, "Bearer " + getAccessToken())
                         .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
-                        .bodyValue(buildMyNotificationMessage(token, msgReq.getTitle(), msgReq.getDescription() + " " + msgReq.getHyperlink()))
+                        .bodyValue(buildMyNotificationMessage(token, msgReq.getTitle(), msgReq.getDescription()))
                         .retrieve()
                         .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
                             log.error("4xx Error: {}", clientResponse.statusCode());
@@ -115,29 +110,32 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 
     public void sendMulticast(MultiMessageReqDto msgReq) {
         try {
-//            if (msgReq.getActivationDate().compareTo(currentDate) > 0) {
-//                //TODO: send this notification toward the job
-//            }
-
-            List<String> registrationTokens = new java.util.ArrayList<>();//(List.of("cjXADdcGQs-G7N6ks5lXS-:APA91bFJPY_8iI-06ARajU1WaNDtZNXi4AphlojKx4fKsu9YArq1FFZ_jvkyC21rfwF-28VrUUNCOhXgQsLoCn8EV1WfZb4vzxgg7uBIjbqArY5-ZX39E8nzfmF9Ugy1HXhpDzczbXEx"
-//                    , "eyefizXbRvqvBh2oKWKMHP:APA91bF714BuVvky0nI1U3PUzVmGR07MOhW1LXR4erdhfqC6v04MzOlrnN9jkqeXKPhWgUyrg4vL3lxCcAAKefpi9Fo4PJ5hnCrz3VpBdp0ZjS0MxisjYeU"));
+            List<String> registrationTokens = new java.util.ArrayList<>();
 
             if (msgReq.getSuccessSsn().isEmpty()) { //general notice
-                firebaseUserRepository.findByUserPlatform(UserPlatform.valueOf(msgReq.getPlatform()))
-                        .forEach(firebaseUser -> registrationTokens.add(firebaseUser.getFcmToken()));
+                if (msgReq.getPlatform() == null || UserPlatform.ALL.toString().equals(msgReq.getPlatform()))
+                    firebaseUserRepository.findAll().forEach(u -> registrationTokens.add(u.getFcmToken()));
+                else
+                    firebaseUserRepository.findByUserPlatform(UserPlatform.valueOf(msgReq.getPlatform()))
+                            .forEach(firebaseUser -> registrationTokens.add(firebaseUser.getFcmToken()));
 
             } else {
-                msgReq.getSuccessSsn().forEach(givenSsn ->
-                        firebaseUserRepository.findByNationalCodeAndUserPlatform(givenSsn, UserPlatform.valueOf(msgReq.getPlatform()))
-                                .ifPresent(firebaseUser -> registrationTokens.add(firebaseUser.getFcmToken()))
-                );
+                if (msgReq.getPlatform() == null)
+                    msgReq.getSuccessSsn().forEach(givenSsn ->
+                            firebaseUserRepository.findByNationalCode(givenSsn).forEach(firebaseUser -> registrationTokens.add(firebaseUser.getFcmToken()))
+                    );
+                else
+                    msgReq.getSuccessSsn().forEach(givenSsn ->
+                            firebaseUserRepository.findByNationalCodeAndUserPlatform(givenSsn, UserPlatform.valueOf(msgReq.getPlatform()))
+                                    .ifPresent(firebaseUser -> registrationTokens.add(firebaseUser.getFcmToken()))
+                    );
             }
 
 
             if (!registrationTokens.isEmpty()) {
                 Notification campaingNotification = Notification.builder()
                         .setTitle(msgReq.getTitle())
-                        .setBody(msgReq.getDescription() + " " + msgReq.getHyperlink())
+                        .setBody(msgReq.getDescription())
                         .build();
 
                 callMulticastSDKService(campaingNotification, msgReq.getHyperlink(), registrationTokens);
@@ -154,16 +152,17 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
             List<List<String>> batches = Lists.partition(registrationTokens, 500); // splits the token list into batches of 500
 
             for (List<String> batch : batches) {
-
                 MulticastMessage message = MulticastMessage.builder()
                         .setNotification(campaingNotification)
                         .putData("hyperlink", hyperlink)
                         .addAllTokens(batch)
                         .build();
                 BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-                Thread.sleep(500);// pause between batches
                 System.out.println(response.getSuccessCount() + " messages were sent successfully");
                 System.out.println(response.getFailureCount() + " messages were not sent");
+
+                Thread.sleep(500);// pause between batches
+
             }
         } catch (FirebaseMessagingException | InterruptedException e) {
             throw new RuntimeException(e);
@@ -174,7 +173,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
     private String getAccessToken() {
         GoogleCredentials googleCredentials = GoogleCredentials
                 .fromStream(new FileInputStream(fcm_account_fileName))
-                .createScoped(Arrays.asList(SCOPES));
+                .createScoped(Collections.singletonList(MESSAGING_SCOPE));
         googleCredentials.refreshIfExpired();
 //        return googleCredentials.refreshAccessToken().getTokenValue();
         return googleCredentials.getAccessToken().getTokenValue();
@@ -191,7 +190,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
      * }
      * }
      */
-    private JsonObject buildMyNotificationMessage(String deviceToken, String title, String body) {
+    private String buildMyNotificationMessage(String deviceToken, String title, String body) {
         JsonObject jNotification = new JsonObject();
         jNotification.addProperty("title", title);
         jNotification.addProperty("body", body);
@@ -203,7 +202,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
         JsonObject jFcm = new JsonObject();
         jFcm.add(MESSAGE_KEY, jMessage);
 
-        return jFcm;
+        return jFcm.toString();
     }
 
 
@@ -234,8 +233,8 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 //     * @throws IOException
 //     * @throws IOException
 //     */
-    @SneakyThrows
-    public void pushNotificationWithJsonData(String title, String description, String noti_id) {
+//    @SneakyThrows
+//    public void pushNotificationWithJsonData(String title, String description, String noti_id) {
 
 //        String userDeviceIdKey = "cjXADdcGQs-G7N6ks5lXS-:APA91bFJPY_8iI-06ARajU1WaNDtZNXi4AphlojKx4fKsu9YArq1FFZ_jvkyC21rfwF-28VrUUNCOhXgQsLoCn8EV1WfZb4vzxgg7uBIjbqArY5-ZX39E8nzfmF9Ugy1HXhpDzczbXEx";
 //        Optional<FirebaseUser> userToPush = firebaseUserRepository.findTopByNationalCodeAndIsTrustedIsTrue(String.valueOf(noti_id));
@@ -292,6 +291,6 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 //            log.info(response);
 //        }
 //        log.info("===( End PushNotiHttpV1Service response log )===");
-    }
+//    }
 
 }

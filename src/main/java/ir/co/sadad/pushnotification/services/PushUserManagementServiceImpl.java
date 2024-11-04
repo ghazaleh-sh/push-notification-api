@@ -8,6 +8,7 @@ import ir.co.sadad.pushnotification.mappers.FirebaseUserMapper;
 import ir.co.sadad.pushnotification.repositories.FirebaseUserRepository;
 import ir.co.sadad.pushnotification.services.sso.SsoTanService;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.MessageSource;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
     private final SsoTanService ssoTanService;
 
     @Override
+    @SneakyThrows
     public FirebaseUserResDto addOrUpdateUserInfo(@FirebaseRequest FirebaseUserReqDto firebaseUserReqDto) {
 
         FirebaseUserResDto response = new FirebaseUserResDto();
@@ -59,9 +61,14 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
         firebaseUserRepository.saveAndFlush(newFBUser);
     }
 
+    @Override
+    @SneakyThrows
     public ActivateDeactivateResDto activeInactivePushForUser(ActivateDeactivateReqDto reqDto, String authToken, String otp) {
 
-        if (otp == null) {
+        FirebaseUser savedUser = firebaseUserRepository.findByUserUuid(reqDto.getUserUuid())
+                .orElseThrow(() -> new PushNotificationException("user.not.found", HttpStatus.NOT_FOUND));
+
+        if (otp == null || otp.isEmpty()) {
             ssoTanService.sendTanRequest(authToken);
             return null;
 
@@ -70,22 +77,17 @@ public class PushUserManagementServiceImpl implements PushUserManagementService 
 
             ActivateDeactivateResDto response = new ActivateDeactivateResDto();
 
-            firebaseUserRepository.findById(reqDto.getUserId())
-                    .ifPresentOrElse(firebaseUser -> {
-                                firebaseUser.setIsActivatedOnTransaction(reqDto.getIsActivatedOnTransaction());
-                                firebaseUserRepository.saveAndFlush(firebaseUser);
+            savedUser.setIsActivatedOnTransaction(reqDto.getIsActivatedOnTransaction());
+            firebaseUserRepository.saveAndFlush(savedUser);
 
-                                response.setActive(reqDto.getIsActivatedOnTransaction());
-                            }, () -> {
-                                throw new PushNotificationException("user.not.found", HttpStatus.NOT_FOUND);
-                            }
-                    );
+            response.setActive(reqDto.getIsActivatedOnTransaction());
 
             return response;
         }
     }
 
     @Override
+    @SneakyThrows
     public List<UserFcmInfoResDto> userFcmInfo(String ssn) {
         List<UserFcmInfoResDto> res = new ArrayList<>();
 

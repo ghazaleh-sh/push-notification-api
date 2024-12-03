@@ -1,7 +1,7 @@
 package ir.co.sadad.pushnotification.entities;
 
 import ir.co.sadad.pushnotification.enums.UserPlatform;
-import ir.co.sadad.pushnotification.services.utils.UUIDToBytesConverter;
+import ir.co.sadad.pushnotification.common.utils.UUIDToBytesConverter;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,12 +15,12 @@ import java.util.UUID;
  * stores firebase token of each user from different applications and platforms
  */
 @Entity
-@Table(name = "FIREBASE_USER", uniqueConstraints = {@UniqueConstraint(columnNames = {"NATIONAL_CODE", "USER_PLATFORM", "DEVICE_UNIQUE_ID", "MODEL_ID"}, name = "UKFIREBASE_SSN_PLATFORM_MODEL")})
+@Table(name = "FIREBASE_USER")
 @Getter
 @Setter
 public class FirebaseUser extends AbstractEntity {
 
-    @Column(name = "USER_UUID", columnDefinition = "CHAR(16) FOR BIT DATA") //reduces the overall database size.
+    @Column(name = "USER_UUID")//), columnDefinition = "CHAR(16) FOR BIT DATA") //reduces the overall database size.
     @Convert(converter = UUIDToBytesConverter.class)
     private UUID userUuid;
 

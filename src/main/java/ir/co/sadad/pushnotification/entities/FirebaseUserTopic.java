@@ -24,12 +24,12 @@ public class FirebaseUserTopic extends AbstractEntity {
 //            @JoinColumn(name="title", referencedColumnName = "title"),
 //            @JoinColumn(name="from_date", referencedColumnName = "from_date")
 //    })
-    @JoinColumn(name = "FIREBASE_ID", referencedColumnName = "ID", nullable = false, foreignKey = @ForeignKey(name = "FKFIREBASE_USER_TOPIC_TO_FIREBASE_USER"))
+    @JoinColumn(name = "FIREBASE_ID", referencedColumnName = "ID", nullable = false)
     @NotNull
     private FirebaseUser firebaseUser;
 
     @ManyToOne//(cascade = CascadeType.REMOVE)
-    @JoinColumn(name = "TOPIC_ID", referencedColumnName = "ID", nullable = false, foreignKey = @ForeignKey(name = "FKFIREBASE_USER_TOPIC_TO_TOPIC"))
+    @JoinColumn(name = "TOPIC_ID", referencedColumnName = "ID", nullable = false)
     @NotNull
     private FirebaseTopic topic;
 }

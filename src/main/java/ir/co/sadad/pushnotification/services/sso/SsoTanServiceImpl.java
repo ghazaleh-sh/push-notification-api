@@ -30,7 +30,7 @@ public class SsoTanServiceImpl implements SsoTanService {
 
     @Override
     public void sendTanRequest(String userPasswordToken) {
-        String otpMessage = "بانک ملی (هشدار) لطفا جهت فعالسازی پوش نوتیفیکیشن شناسه زیر را وارد کنید:";
+        String otpMessage = "بانک ملی (هشدار) لطفا جهت فعالسازی نوتیفیکیشن، شناسه زیر را وارد کنید:";
 //                """
 //                بانک ملی (هشدار)
 //                 لطفا جهت فعالسازی پوش نوتیفیکیشن شناسه زیر را وارد کنید:
@@ -41,7 +41,7 @@ public class SsoTanServiceImpl implements SsoTanService {
                 .uri(ssoBaseUrl + sendOtpPath, uriBuilder -> uriBuilder
                         .queryParam("msg", otpMessage)
                         .build())
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + userPasswordToken)
+                .header(HttpHeaders.AUTHORIZATION, userPasswordToken)
                 .retrieve()
                 .onStatus(HttpStatusCode::is4xxClientError, clientResponse -> {
                     log.error("4xx Error: {}", clientResponse.statusCode());
@@ -68,7 +68,7 @@ public class SsoTanServiceImpl implements SsoTanService {
         webClient
                 .post()
                 .uri(ssoBaseUrl + verifyOtpPath)
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + userPasswordToken)
+                .header(HttpHeaders.AUTHORIZATION, userPasswordToken)
                 .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
                 .bodyValue(otpCode)
                 .retrieve()

@@ -13,13 +13,10 @@ public class FirebaseUserReqDto {
     @NotBlank(message = "{fcmToken.must.not.be.null}")
     private String fcmToken;
 
-    @NotBlank(message = "{national.code.must.not.be.null}")
     private String nationalCode;
 
     @NotNull(message = "{platform.must.not.be.null}")
     private UserPlatform userPlatform;
-
-    private Boolean isActivatedOnTransaction;
 
     @NotBlank(message = "{deviceUniqueId.must.not.be.null}")
     private String deviceUniqueId;

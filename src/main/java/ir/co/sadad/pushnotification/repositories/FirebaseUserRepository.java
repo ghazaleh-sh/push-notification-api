@@ -1,7 +1,6 @@
 package ir.co.sadad.pushnotification.repositories;
 
 import ir.co.sadad.pushnotification.entities.FirebaseUser;
-import ir.co.sadad.pushnotification.enums.AppUser;
 import ir.co.sadad.pushnotification.enums.UserPlatform;
 import org.springframework.data.jpa.repository.JpaRepository;
 
@@ -16,9 +15,15 @@ public interface FirebaseUserRepository extends JpaRepository<FirebaseUser, Long
 
     Optional<FirebaseUser> findByUserUuid(UUID userUuid);
 
-    Optional<FirebaseUser> findTopByNationalCodeAndIsActivatedOnTransactionIsTrue(String nationalCode);
+    List<FirebaseUser> findByUserPlatformAndIsActivatedOnTransactionIsTrue(UserPlatform platform);
+
+    List<FirebaseUser> findAllByIsActivatedOnTransactionIsTrue();
 
     Optional<FirebaseUser> findByNationalCodeAndUserPlatformAndDeviceUniqueIdAndDeviceModelId(String nationalCode, UserPlatform platform, String deviceUniqueId, String deviceModelId);
 
-    Optional<FirebaseUser> findByNationalCodeAndUserPlatform(String nationalCode, UserPlatform platform);
+    List<FirebaseUser> findByNationalCodeAndUserPlatform(String nationalCode, UserPlatform platform);
+
+    List<FirebaseUser> findByNationalCodeAndIsActivatedOnTransactionIsTrue(String nationalCode);
+
+    List<FirebaseUser> findByNationalCodeAndUserPlatformAndIsActivatedOnTransactionIsTrue(String nationalCode, UserPlatform platform);
 }

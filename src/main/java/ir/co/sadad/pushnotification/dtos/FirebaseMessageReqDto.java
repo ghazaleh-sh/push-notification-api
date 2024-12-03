@@ -8,4 +8,5 @@ public class FirebaseMessageReqDto {
     private String description;
     private String platform;
     private String hyperlink;
+    private String noticeType;
 }

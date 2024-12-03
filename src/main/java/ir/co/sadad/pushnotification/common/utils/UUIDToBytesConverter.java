@@ -1,9 +1,13 @@
-package ir.co.sadad.pushnotification.services.utils;
+package ir.co.sadad.pushnotification.common.utils;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
 
 import java.nio.ByteBuffer;
+import java.security.KeyFactory;
+import java.security.PrivateKey;
+import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.Base64;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -52,5 +56,20 @@ public class UUIDToBytesConverter implements AttributeConverter<UUID, byte[]> {
             hexString.append(hex);
         }
         return hexString.toString();
+    }
+
+    public static PrivateKey readPrivateKeyFromString(String key) throws Exception {
+        // Remove PEM headers
+        String privateKeyPEM = key.replace("-----BEGIN PRIVATE KEY-----", "")
+                .replace("-----END PRIVATE KEY-----", "")
+                .replaceAll("\\s+", "");
+
+        // Decode the base64 string
+        byte[] keyBytes = Base64.getDecoder().decode(privateKeyPEM);
+
+        // Convert to RSAPrivateKey
+        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+        KeyFactory keyFactory = KeyFactory.getInstance("RSA");
+        return keyFactory.generatePrivate(keySpec);
     }
 }

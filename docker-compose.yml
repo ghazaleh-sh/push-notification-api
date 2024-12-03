@@ -25,7 +25,7 @@ services:
       - JVM_OPTS=-Dfile.encoding=UTF8
     working_dir: /
     build: .
-    command: [ "/usr/bin/java", "-jar", "/push-notification-api-0.0.1-SNAPSHOT.jar" ]
+    command: [ "/usr/bin/java", "-jar", "/push-notification-api-1.1.9-SNAPSHOT.jar" ]
 #    restart: always
 networks:
   neo-baam:

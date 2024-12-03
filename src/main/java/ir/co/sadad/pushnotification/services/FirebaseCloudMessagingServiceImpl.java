@@ -40,8 +40,8 @@ import static ir.co.sadad.pushnotification.common.Constants.MESSAGE_KEY;
 @RequiredArgsConstructor
 public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessagingService {
 
-    //    @Value(value = "${fcm.service.account}")
-    private final String fcm_account_fileName = "/static/agpush-test-f9450c25240b.json";
+    @Value(value = "${fcm.service.account}")
+    private final String fcm_account_fileName;
 
     @Value(value = "${fcm.service.project-id}")
     private String project_id;

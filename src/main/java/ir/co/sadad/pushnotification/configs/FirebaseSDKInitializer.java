@@ -15,8 +15,8 @@ import java.io.InputStream;
 @Slf4j
 public class FirebaseSDKInitializer {
 
-    //    @Value(value = "${fcm.service.account}")
-    private static final String accountJsonPath = "/static/agpush-test-f9450c25240b.json";
+    @Value(value = "${fcm.service.account}")
+    private static final String accountJsonPath;
 
     @Bean
     public FirebaseMessaging FirebaseInitializer() throws IOException {

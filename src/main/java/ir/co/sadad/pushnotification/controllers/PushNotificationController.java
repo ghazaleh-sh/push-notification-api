@@ -24,43 +24,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-@Tag(description = "مستندات مدیریت کاربران پوش نوتیفیکیشن", name = "Push Notification API")
 public class PushNotificationController {
 
-    private final PushUserManagementService pushUserManagementService;
-    private final FirebaseCloudMessagingService firebaseCloudMessagingService;
-
-
-    public ResponseEntity<FirebaseUserResDto> addOrUpdateUser(
-            @Valid @RequestBody FirebaseUserReqDto reqDto) {
-        FirebaseUserResDto response = pushUserManagementService.addOrUpdateUserInfo(reqDto);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    public ResponseEntity<ActivateDeactivateResDto> activePushForUser(
-            @Valid @RequestBody ActivateDeactivateReqDto reqDto,
-            @RequestHeader(name = HttpHeaders.AUTHORIZATION) String authToken,
-            @RequestHeader("otp") String otp) {
-        ActivateDeactivateResDto response = pushUserManagementService.activeInactivePushForUser(reqDto, authToken, otp);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    public ResponseEntity<List<UserFcmInfoResDto>> userFcmInfo(
-            @PathVariable("nationalCode") String nationalCode) {
-        List<UserFcmInfoResDto> response = pushUserManagementService.userFcmInfo(nationalCode);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    public ResponseEntity<HttpStatus> sendMulticastMessage(
-            @RequestBody MultiMessageReqDto reqDto) {
-        firebaseCloudMessagingService.sendMulticast(reqDto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
-
-    public ResponseEntity<HttpStatus> sendSingleMessage(
-            @RequestBody SingleMessageReqDto reqDto) {
-        firebaseCloudMessagingService.sendSingle(reqDto);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 
 }

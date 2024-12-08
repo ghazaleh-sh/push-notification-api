@@ -24,6 +24,7 @@ import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
     private final WebClient webClient;
 
     @SneakyThrows
-//    @RateLimiter(name = "singleRateLimit", fallbackMethod = "getSingleMessageFallbackMethod")
+    @RateLimiter(name = "singleRateLimit", fallbackMethod = "getSingleMessageFallbackMethod")
     public void sendSingle(SingleMessageReqDto msgReq) {
         if (msgReq.getSsn() == null || msgReq.getSsn().isEmpty())
             return;
@@ -133,7 +134,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
         }
     }
 
-//    {
+    //    {
 //        "message": {
 //        "notification": {
 //            "title": "Flash Sale!",
@@ -143,8 +144,8 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 //        "data": {
 //            "hyperlink": "https://example.com/sale"
 //        },
-//        "android": {
-//            "analyticsLabel": "Flash Sale!"
+//        "fcmOptions": {
+//            "analytics_label": "Flash Sale!"
 //        }
 //    }
 //    }
@@ -164,9 +165,9 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
         }
         jMessage.add("data", jData);
 
-//        JsonObject jAndroid = new JsonObject();
-//        jAndroid.addProperty("analyticsLabel", msgReqDto.getTitle());
-//        jMessage.add("android", jAndroid);
+//        JsonObject jFcmOption = new JsonObject();
+//        jFcmOption.addProperty("analytics_label", msgReqDto.getTitle());
+//        jMessage.add("fcmOptions", jFcmOption);
 
         JsonObject jFcm = new JsonObject();
         jFcm.add(MESSAGE_KEY, jMessage);
@@ -196,7 +197,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
                     .setBody(msgReq.getDescription())
                     .build();
 
-            return callMulticastSDKService(campaingNotification, msgReq.getHyperlink(), registrationTokens)
+            return callMulticastSDKService(campaingNotification, msgReq, registrationTokens)
                     .doOnError(e -> log.error("Error occurred while sending multicast message: {}", e.getMessage(), e))
                     .onErrorResume(e -> Mono.empty());
         }
@@ -245,7 +246,7 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
 
 
     @RateLimiter(name = "multipleRateLimit")
-    public Mono<Void> callMulticastSDKService(Notification campaignNotification, String hyperlink, List<String> registrationTokens) {
+    public Mono<Void> callMulticastSDKService(Notification campaignNotification, MultiMessageReqDto msgReqDto, List<String> registrationTokens) {
 
         List<List<String>> batches = Lists.partition(registrationTokens, 500);
 
@@ -258,35 +259,40 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
                             .setNotification(campaignNotification)
                             .addAllTokens(batch);
 
-                    if (hyperlink != null) {
-                        messageBuilder.putData("hyperlink", hyperlink);
+                    //analytics_label used on firebase dashboard to filter campaign notifications based on it
+                    messageBuilder.setFcmOptions(FcmOptions.withAnalyticsLabel("campaign-".concat(String.valueOf(msgReqDto.getNoticeId()))));
+
+                    if (msgReqDto.getHyperlink() != null) {
+                        messageBuilder.putData("hyperlink", msgReqDto.getHyperlink());
                     }
 
                     MulticastMessage message = messageBuilder.build();
                     //each batch is sent in parallel without blocking the thread
                     return Mono.fromCallable(() -> {
-                        BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
-                        List<String> failedTokens = response.getResponses().stream()
-                                .filter(res -> res.getException() != null)
-                                .map(res -> batch.get(response.getResponses().indexOf(res)))
-                                .toList();
+                                BatchResponse response = FirebaseMessaging.getInstance().sendEachForMulticast(message);
+                                List<String> failedTokens = response.getResponses().stream()
+                                        .filter(res -> res.getException() != null)
+                                        .map(res -> batch.get(response.getResponses().indexOf(res)))
+                                        .toList();
 
-                        failedTokensQueue.addAll(failedTokens);
+                                failedTokensQueue.addAll(failedTokens);
 
-                        log.info("{} messages sent successfully", response.getSuccessCount());
-                        log.info("{} messages failed", response.getFailureCount());
-                        return response;
+                                log.info("{} messages sent successfully", response.getSuccessCount());
+                                log.info("{} messages failed", response.getFailureCount());
+                                return response;
 
-                    }).onErrorResume(e -> {
-                        log.error("Batch-level error occurred: {}", e.getMessage(), e);
-                        return Mono.empty(); // Return empty Mono to continue processing other batches
-                    });
+                            })
+                            .subscribeOn(Schedulers.boundedElastic())
+                            .onErrorResume(e -> {
+                                log.error("Batch-level error occurred: {}", e.getMessage(), e);
+                                return Mono.empty(); // Return empty Mono to continue processing other batches
+                            });
 
                 }, 5)
-                .then(Mono.defer(() -> retryMultipleFallback(campaignNotification, hyperlink, failedTokensQueue))); // Trigger fallback after all batches
+                .then(Mono.defer(() -> retryMultipleFallback(campaignNotification, msgReqDto, failedTokensQueue))); // Trigger fallback after all batches
     }
 
-    public Mono<Void> retryMultipleFallback(Notification campaignNotification, String hyperlink, ConcurrentLinkedQueue<String> failedTokensQueue) {
+    public Mono<Void> retryMultipleFallback(Notification campaignNotification, MultiMessageReqDto msgReqDto, ConcurrentLinkedQueue<String> failedTokensQueue) {
         log.info("Retrying {} failed tokens", failedTokensQueue.size());
 
         List<String> failedTokensToRetry = new ArrayList<>(failedTokensQueue);
@@ -299,8 +305,10 @@ public class FirebaseCloudMessagingServiceImpl implements FirebaseCloudMessaging
                             .setNotification(campaignNotification)
                             .setToken(token); // Send to a single token
 
-                    if (hyperlink != null) {
-                        messageBuilder.putData("hyperlink", hyperlink);
+                    messageBuilder.setFcmOptions(FcmOptions.withAnalyticsLabel("campaign-".concat(String.valueOf(msgReqDto.getNoticeId()))));
+
+                    if (msgReqDto.getHyperlink() != null) {
+                        messageBuilder.putData("hyperlink", msgReqDto.getHyperlink());
                     }
 
                     Message message = messageBuilder.build();

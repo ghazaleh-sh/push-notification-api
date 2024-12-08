@@ -1,1 +1,133 @@
 ###############################__PUSH_NOTIFICATION__###############################
+#
+#
+###############################__Context
+server:
+  port: 8524
+  servlet:
+    context-path: /api/push-notification
+
+#
+#
+###############################__Metrics_And_Monitoring
+#management:
+#  health.redis.enabled: false
+#  info.git.mode: full
+#  endpoint:
+#    health.show-details: always
+#    metrics.enabled: true
+#    prometheus.enabled: true
+#  endpoints:
+#    enabled-by-default: true
+#    jmx.exposure.exclude: '*'
+#    web.exposure.include: '*'
+#  metrics:
+#    enable:
+#      jvm: true
+#      root: true
+#  prometheus:
+#    metrics:
+#      export:
+#        enabled: true
+###############################__Database
+spring:
+  #  profiles:
+  #    include:
+  #      - security
+  application:
+    name: push-notification-api
+  #  jpa:
+  #    #    database-platform: org.hibernate.dialect.DB2Dialect
+  #    show-sql: false
+  #    generate-ddl: true
+  #    open-in-view: false
+  #    hibernate:
+  #      naming.physical-strategy:  org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+  #      ddl-auto: none
+  #    properties:
+  #      hibernate:
+  #        #        dialect: org.hibernate.dialect.DB2Dialect
+  #        format_sql: true
+  #        default_schema: ${db.default_schema}
+  #  datasource:
+  #    username: ${db.username}
+  #    password: ${db.password}
+  #    url: ${db.url}
+  #    driver-class-name: com.ibm.db2.jcc.DB2Driver
+
+  ###############################__Logging
+
+#logging:
+#  level:
+#    root: ${log.level}
+#    hibernate: ${log.level}
+#    org.hibernate: ${log.level}
+#    org:
+#      hibernate:
+#        SQL: ${log.level}
+#        type.descriptor.sql.BasicBinder: ${log.level}
+#      springframework:
+#        boot.autoconfigure: ${log.level}
+#        web: ${log.level}
+#        web.reactive.function.client.ExchangeFunctions: ${log.level}
+#      apache.http: ${log.level}
+#      zaando.logbook: ${log.level}
+#    net.guides: ${log.level}
+#    reactor.netty.http.client.HttpClient: ${log.level}
+#    io.swagger.models.parameters.AbstractSerializableParameter: ${log.level}
+#    tomcat: ${log.level}
+
+springdoc:
+  swagger-ui:
+    path: /api.html
+
+
+  ###############################__Firebaseio HTTP V1
+fcm:
+  service:
+    ##To authorize access to FCM, request the scope
+    scope: https://www.googleapis.com/auth/firebase.messaging
+    account: agpush-test-f9450c25240b.json
+    project-id: agpush-test
+  endpoint:
+    httpV1-send-url: https://fcm.googleapis.com/v1/projects/
+
+sso:
+  #  base-url: ${sso.base-url}
+  send-otp: /identity-manager/users/tan
+  verify-otp: /identity-manager/users/tan
+
+###############################__SSO
+bmi.oauth2.excluded-urls: /push-notification-api/swagger-ui/**:*,
+  /swagger-ui/**:*,
+  /push-notification-api/api.html:*,
+  /api.html:*,
+  /push-notification-api/v3/**:*,
+  /v3/**:*,
+  /h2/**:*,
+  /swagger-ui.html:*,
+  /webjars/**:*,
+  /v2/**:*,
+  /swagger-resources/**:*,
+  /actuator/**:*,
+  /trace/**:*
+
+
+secretKeyLocation: /opt/configs/push-notification-api
+
+
+resilience4j.rate-limiter:
+  configs:
+    default:
+      limitForPeriod: 1000 #only 10 requests are allowed within 'limitRefreshPeriod'== 5s
+      limitRefreshPeriod: 5s #duration after which the limit will be reset.==>here limit will refresh every 5 seconds.
+      timeoutDuration: 5s #request will fail after three seconds if it did not get a chance to execute.
+      registerHealthIndicator: true #provides information about the rate limiter’s current status, allowing you to monitor its health in your application.
+      eventConsumerBufferSize: 100 #the size of the buffer for storing rate limiter events(include information such as successful or rejected requests.)
+  instances:
+    multipleRateLimit:
+      baseConfig: default
+      limitRefreshPeriod: 10s
+    singleRateLimit:
+      baseConfig: default
+

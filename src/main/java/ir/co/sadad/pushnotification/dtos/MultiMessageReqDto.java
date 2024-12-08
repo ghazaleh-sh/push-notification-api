@@ -9,4 +9,5 @@ import java.util.List;
 @Data
 public class MultiMessageReqDto extends FirebaseMessageReqDto {
     private List<String> successSsn;
+    private Long noticeId;
 }
